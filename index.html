@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<title>Zmetkování</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#1f262e"><meta name="apple-mobile-web-app-title" content="Zmetkování"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1f24;--mut:#6b7280;--ln:#d5d9e0;--ac:#2563eb;--bad:#dc2626;--wr:#f59e0b;--off:#9ca3af;--ok:#16a34a;--te:#7c3aed}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1c2128;--tx:#e8eaed;--mut:#9aa3af;--ln:#343b46;--ac:#60a5fa}}
+:root[data-theme="dark"]{--bg:#111418;--card:#1c2128;--tx:#e8eaed;--mut:#9aa3af;--ln:#343b46;--ac:#60a5fa}
+*{box-sizing:border-box}html,body{margin:0;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}#ov{overflow-x:hidden;touch-action:pan-y}body.kbd .stk{position:static}body{background:var(--bg);color:var(--tx);font:16px/1.35 system-ui,Arial,sans-serif;padding:env(safe-area-inset-top,0) 0 76px}
+main{max-width:560px;margin:0 auto;padding:10px}
+h2{font-size:15px;margin:14px 0 6px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px;margin-bottom:10px}
+.g{display:grid;gap:6px}.c4{grid-template-columns:repeat(4,1fr)}.c3{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:1fr 1fr}.c5{grid-template-columns:repeat(5,1fr)}.c7{grid-template-columns:repeat(7,1fr)}
+button,input,textarea,select{font:inherit;color:var(--tx)}
+.b{min-height:46px;border:2px solid var(--ln);background:var(--card);border-radius:10px;font-weight:600;padding:4px}
+.b.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.b.bad.on{background:var(--bad);border-color:var(--bad)}.b.wr.on{background:var(--wr);border-color:var(--wr);color:#000}.b.off.on{background:var(--off);border-color:var(--off);color:#000}.b.te.on{background:var(--te);border-color:var(--te)}.b.ok.on{background:var(--ok);border-color:var(--ok)}
+.p{min-height:40px;padding:0;font-size:15px}.p.d{border-color:var(--bad);color:var(--bad)}.p.n{border-color:var(--wr);color:var(--wr)}.p.x{border-color:var(--off);color:var(--off)}.p.g2{border-color:var(--ok);color:var(--ok)}.p.zt.zp{border-style:dashed;background:transparent;box-shadow:none}.p.zt{border:3px solid var(--te);color:var(--te);background:rgba(124,58,237,.12);font-weight:800;box-shadow:0 0 0 2px rgba(124,58,237,.25)}
+.dt h2{margin:10px 0 5px;font-size:13px}.dt h2 span{font-size:11px;font-weight:400;text-transform:none;letter-spacing:0}.dt .b{min-height:46px;font-size:15px}.dt.dt{padding-top:6px}.dt .miss{margin-bottom:8px}.dt .m{font-size:12px!important;line-height:1.2;margin:5px 0 5px!important}.dt .stk{margin-top:4px;padding:4px 0 6px}.dt .g{gap:5px}body:has(.dt){padding-bottom:0}.dt .stk .sv{font-size:17px}.dt input[type=text]{min-height:38px;padding:4px 10px}.dt .m{font-size:12px;margin:2px 0 3px!important}.dt .stk .sv{min-height:52px;margin-top:0}.dt .mt{min-height:16px;font-size:12px}.stk{position:sticky;bottom:0;background:var(--bg,#f3f4f6);padding:6px 0 8px;margin-top:8px;z-index:5}.stk .sv{margin-top:4px}.miss{outline:2px solid var(--bad);outline-offset:3px;border-radius:10px}.mt{color:var(--bad);font-size:13px;font-weight:600;min-height:18px}.sv{width:100%;min-height:54px;border:0;border-radius:12px;background:var(--ok);color:#fff;font-size:18px;font-weight:700;margin-top:8px}
+.sv.s2{background:var(--card);color:var(--tx);border:2px solid var(--ln);min-height:44px;font-size:15px;font-weight:600}.sv:disabled{opacity:.4}
+input[type=text],input[type=date],select,textarea{width:100%;min-height:44px;border:2px solid var(--ln);border-radius:10px;background:var(--card);padding:6px 10px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0)}
+nav button{flex:1;min-height:56px;border:0;background:none;font-weight:700;color:var(--mut)}nav button.on{color:var(--ac)}
+#ov{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:9;padding:env(safe-area-inset-top,0) 0 calc(30px + var(--kb,0px))}
+.kpi{display:flex;gap:6px}.kpi div{flex:1;text-align:center;background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:8px 2px}.kpi b{display:block;font-size:20px}.kpi span{font-size:11px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:5px 4px;border-bottom:1px solid var(--ln);text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--mut);font-weight:600}
+.bar{position:relative;height:24px;background:var(--ln);border-radius:6px;overflow:hidden;margin:3px 0}.bar i{position:absolute;inset:0 auto 0 0;background:var(--bad);opacity:.75}.bar span{position:relative;padding:0 8px;line-height:24px;font-size:13px;font-weight:600}
+.m{color:var(--mut);font-size:13px}.t{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111;color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.2s;pointer-events:none;z-index:20}.t.s{opacity:.95}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.tg{display:block;font-size:9px;line-height:9px;font-weight:600}
+[hidden]{display:none!important}
+input[type=password]{width:100%;min-height:44px;border:2px solid var(--ln);border-radius:10px;background:var(--card);padding:6px 10px}
+.lg{max-width:420px;margin:0 auto;padding:48px 24px 40px}
+.bdg{width:80px;height:80px;border-radius:20px;background:#1f4e8c;color:#fff;font-weight:800;font-size:32px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.lg h1{font-size:38px;line-height:1.1;margin:0 0 6px;font-weight:800}.lg .sub{color:var(--mut);font-size:17px;margin-bottom:10px}
+.lg label{display:block;font-weight:700;font-size:15px;margin:18px 0 8px;color:var(--mut)}
+.lg input{min-height:54px;border-radius:14px;font-size:18px}
+.lb{width:100%;min-height:56px;margin-top:26px;border:0;border-radius:14px;background:#1f4e8c;color:#fff;font-size:18px;font-weight:700}.lb:disabled{background:#9fb2cc}
+main.lgp{max-width:none;padding:0}
+.hero{background:radial-gradient(120% 80% at 88% 8%,#46505b 0%,transparent 62%),linear-gradient(165deg,#323a42,#161a1f 72%);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 40px) 24px 96px;min-height:300px;border-radius:0 0 32px 32px}
+.hi{max-width:420px;margin:0 auto}.hero .bdg{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);margin-bottom:0}.hrow{display:flex;justify-content:flex-start;align-items:center;gap:12px;margin-bottom:10px}.hero .cb{margin:0;width:84px;height:84px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.28);color:rgba(255,255,255,.62)}.hero .cb.on{background:rgba(255,255,255,.2);border-color:#f59e0b;color:#fff;box-shadow:0 0 0 3px rgba(245,158,11,.25)}.pick{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#b4bdc8;margin:0 0 20px}.bgart{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.hero{position:relative;overflow:hidden}.hi{position:relative;z-index:1}.fcard{position:relative;z-index:2}.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:9px;counter-reset:st}.steps li{counter-increment:st;display:flex;gap:10px;align-items:center;font-size:15px;color:#e3edfa}.steps li::before{content:counter(st);flex:none;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}.steps b{color:#fff}.lfoot{max-width:420px;margin:0 auto 24px;padding:0 24px;text-align:center;color:var(--mut);font-size:13px}
+.hero h1{color:#fff;font-size:34px;line-height:1.1;margin:0 0 6px;font-weight:800}.hero .sub{color:#d3dae2;font-size:16px}.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(255,255,255,.028) 0 1px,transparent 1px 4px)}
+.fcard{max-width:420px;margin:-52px auto 24px;width:calc(100% - 32px);background:var(--card);border-radius:22px;padding:6px 22px 22px;box-shadow:0 12px 32px rgba(15,35,70,.2)}
+.fcard label{display:block;font-weight:700;font-size:15px;margin:18px 0 8px;color:var(--mut)}.fcard input{min-height:54px;border-radius:14px;font-size:18px}
+.pw{position:relative}.pw input{padding-right:52px}.eye{position:absolute;right:6px;top:6px;width:42px;height:42px;border:0;background:none;font-size:20px;opacity:.6}
+.hello{margin-top:20px;font-size:17px}.hello a{color:var(--ac);font-weight:600;cursor:pointer;margin-left:10px;font-size:14px}
+.rw{margin:11px 0}.rt{display:flex;justify-content:space-between;gap:12px;font-size:15px;align-items:baseline}.rt b{font-size:18px;flex:none}.rb{height:8px;border-radius:4px;background:var(--ln);margin-top:5px;overflow:hidden}.rb i{display:block;height:100%;background:#dc2626;border-radius:4px}
+</style></head><body>
+<main id="app"></main><div id="ov" hidden></div>
+<nav id="nv"><button data-tab="z">Zápis</button><button data-tab="k">Zkoušky</button><button data-tab="p">Přehled</button><button data-tab="d">Data</button></nav>
+<div class="t" id="toast"></div>
+<script>/* samostatná verze: stahování bez Claude */
+if(typeof window.claude==='undefined'){window.claude={use:async()=>({save:async({filename,data})=>{const u=URL.createObjectURL(data),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},4000)}})}}
+</script>
+<script>
+const Z=['1A','1B','1C','1D','2A','2B','2C','2D'],BT=['chybějící žebra','broky','vytečené'];
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0'),rng=n=>Array.from({length:n},(_,i)=>i+1);
+const today=()=>{const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())};
+const fmt=d=>d.split('-').reverse().join('.'),e=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CASTS={'029':{t:'ODLITEK VÁLCE 1201001029',sub:'Válec · slévárna'},'014':{t:'ODLITEK 014',sub:'Slévárna'}};
+let CUR='029';try{const c=localStorage.getItem('zmcur');if(CASTS[c])CUR=c}catch(x){}
+const SK=id=>id==='029'?'zm029b':'zm'+id+'b',DCFG=()=>({np:53,cv:[1,2,3,4,5,6,7],cs:[2,3,4]});
+let S,NP=53,CV=[1,2,3,4,5,6,7],CS=[2,3,4],T=BT.slice();const syncT=()=>{T=BT.concat((S&&S.types)||[])};const nzT=i=>((S&&S.nz)||['vytečené']).includes(T[i]);
+const rdJ=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(x){return null}};
+function initS(id){let R=rdJ(SK(id));if(!R||!R.days)R={people:[],who:null,d:today(),days:{}};
+  if(!Array.isArray(R.types))R.types=[];R.d=today();if(!R.tests)R.tests=[];if(!R.hist)R.hist=[];if(!R.cfg)R.cfg=DCFG();if(!Array.isArray(R.ch))R.ch=[];
+  R.tc=Math.max(R.tc||0,...R.tests.map(t=>+String(t.id).slice(2)||0));
+  /* migrace: starší zkoušky zapsané jen názvem */
+  for(const dd of Object.keys(R.days))for(const r of Object.values(R.days[dd].r)){if(r.te&&!R.tests.some(t=>t.id===r.te)){let t=R.tests.find(q=>q.name===r.te);if(!t){t={id:'zk'+(++R.tc),name:r.te,date:dd,note:''};R.tests.push(t)}r.te=t.id}}
+  let U=rdJ('zmusers');if(!U){const o=id==='029'?R:rdJ('zm029b');U={people:(o&&o.people)||[],lastName:(o&&o.lastName)||''}}
+  R.people=U.people||[];R.lastName=U.lastName||'';return R}
+const CLd=d=>{let c={cv:S.cfg.cv,cs:S.cfg.cs};for(const h of (S.ch||[]).slice().sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0))if(h.from<=d)c=h;return c};
+function applyCfg(){NP=S.cfg.np;const c=CLd(S.d);CV=c.cv;CS=c.cs;syncT()}
+function setCores(cv,cs){const d=S.d;S.ch=(S.ch||[]).filter(h=>h.from!==d);S.ch.push({from:d,cv:cv,cs:cs});applyCfg()}
+S=initS(CUR);applyCfg();
+const persist=()=>{try{localStorage.setItem(SK(CUR),JSON.stringify(S));localStorage.setItem('zmusers',JSON.stringify({people:S.people,lastName:S.lastName}))}catch(x){}};
+function setCast(id){if(!CASTS[id]||id===CUR)return;persist();CUR=id;try{localStorage.setItem('zmcur',id)}catch(x){}S=initS(id);applyCfg();LF.name=S.lastName||'';LF.pin='';LF.pin2=''}
+let user=null,LF={name:S.lastName||'',pin:'',pin2:'',an:'',ap:'',mp:''},FAIL=0,LOCK=0;
+const ppl=()=>user;
+const hsh=s=>{let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)};
+const lgOk=()=>{const sp=!S.people.some(p=>p.pin);return sp?(LF.name.trim().length>=2&&/^\d{4,8}$/.test(LF.pin)&&LF.pin===LF.pin2):(LF.name.trim().length>0&&LF.pin.length>=4)};
+/* platná čísla forem k datu: poslední změna s datem <= d */
+const PL=d=>{let l=rng(NP);for(const h of S.hist.slice().sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0))if(h.from<=d)l=h.p;return l};
+const setPL=(d,l)=>{S.hist=S.hist.filter(h=>h.from!==d);S.hist.push({from:d,p:l})};
+const dayD=d=>S.days[d]||(S.days[d]={k:rng(5).map(n=>({n})),r:{}});
+let BP=null,BPC=false,BW=false;let F=null,KS=null,tab='z',scr='login',pf='all',XT=false,EM=false,AR=null,AT=null,EK=null,NT=false,KN={name:'',date:today(),note:''};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),1500)};
+const ask=k=>{if(AR===k){AR=null;return false}AR=k;render();setTimeout(()=>{if(AR===k){AR=null;render()}},3500);return true};
+const isScrap=r=>!r.nc&&!r.ns&&(r.z.length||r.t.length||r.j);
+const tById=id=>S.tests.find(t=>t.id===id);
+const bt=(a,v,l,c,on)=>`<button class="b ${c||''} ${on?'on':''}" data-a="${a}" data-v="${v}">${l}</button>`;
+const blank=(k,p)=>({k,p,z:new Set(),t:new Set(),j:'',ns:0,nc:0,v:null,s:null,good:0,te:'',newT:0,tnn:'',tnt:'',no:'',open:1});
+
+function viewWho(){return`<h2>Kdo zapisuje</h2><div class="g">${S.people.map(p=>`<div class="g" style="grid-template-columns:1fr auto">${bt('pw',p.id,e(p.name),'ok',p.id===S.who)}${bt('pr',p.id,AR==='pr'+p.id?'Smazat?':'✕','bad',0)}</div>`).join('')||'<div class="m">Zatím nikdo. Přidej první jméno.</div>'}</div>
+<h2>Přidat osobu</h2><div class="g" style="grid-template-columns:1fr auto"><input type="text" id="nm" placeholder="jméno"><button class="b" data-a="pa">Přidat</button></div>
+${ppl()?'<button class="sv" data-a="go">Pokračovat jako '+e(ppl().name)+'</button>':''}`}
+
+let KX={};const OP=t=>KX[t.id]===undefined?!t.done:KX[t.id];const canW=()=>!!user&&!user.view;const rl=p=>p.admin?'správce':p.view?'jen prohlížení':'zapisovatel';
+function saveDraft(){S.draft={d:S.d,k:F.k,p:F.p,z:[...F.z],t:[...F.t],j:F.j,ns:F.ns,nc:F.nc,v:F.v,s:F.s,te:F.te,newT:F.newT,tnn:F.tnn,tnt:F.tnt,no:F.no,u:user?user.id:null}}
+function restoreDraft(){const d=S.draft;if(!d||!user||user.view||(d.u&&d.u!==user.id))return;S.d=d.d;KS=d.k;F=blank(d.k,d.p);F.z=new Set(d.z);F.t=new Set(d.t);['j','ns','nc','v','s','te','newT','tnn','tnt','no'].forEach(k=>{F[k]=d[k]});toast('Obnoven rozepsaný kus (kolo '+d.k+' · č. '+d.p+')')}
+function viewLogin(){const sp=!S.people.some(p=>p.pin),known=!sp&&LF.name.trim();
+  const pinI=(k,lab,ph)=>`<label>${lab}</label><div class="pw"><input type="password" inputmode="numeric" pattern="[0-9]*" data-lf="${k}" value="${e(LF[k])}" placeholder="${ph}" maxlength="8" autocomplete="off" enterkeyhint="done">${k==='pin'?'<button type="button" class="eye" data-a="eye" aria-label="Zobrazit PIN">👁</button>':''}</div>`;
+  const bgc={3:'r',12:'o',16:'t',23:'r'};let cells='';for(let n=0;n<28;n++){const x=196+(n%7)*26,y=14+Math.floor(n/7)*26,c=bgc[n];cells+=`<rect x="${x}" y="${y}" width="21" height="21" rx="5" fill="${c==='r'?'#ef4444':c==='o'?'#f59e0b':c==='t'?'#a78bfa':'#fff'}" opacity="${c?.55:.07}"/>`}
+  let ribs='';for(let a=0;a<12;a++){const r=a*Math.PI/6;ribs+=`<line x1="${(290+72*Math.cos(r)).toFixed(1)}" y1="${(215+72*Math.sin(r)).toFixed(1)}" x2="${(290+150*Math.cos(r)).toFixed(1)}" y2="${(215+150*Math.sin(r)).toFixed(1)}"/>`}
+  const art=`<svg class="bgart" viewBox="0 0 400 330" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="2"><circle cx="290" cy="215" r="190"/><circle cx="290" cy="215" r="150"/><circle cx="290" cy="215" r="72"/>${ribs}</g><circle cx="290" cy="215" r="58" fill="#fff" fill-opacity=".1"/><circle cx="290" cy="215" r="20" fill="#fff" fill-opacity=".14"/></svg>`;
+  return`<div class="hero">${art}<div class="hi"><div class="hrow">${Object.keys(CASTS).map(c=>`<button type="button" class="bdg cb${c===CUR?' on':''}" data-a="cast" data-v="${c}" aria-pressed="${c===CUR}">${c}</button>`).join('')}</div><div class="pick">Vyber odlitek</div><h1>Zmetkování odlitků</h1><div class="sub">${CASTS[CUR].sub}</div></div></div>
+  <div class="fcard">${sp?'<div class="m" style="margin-top:16px">První spuštění: založ účet správce. Pod tímto jménem a PINem se budeš přihlašovat a zakládat další lidi.</div>':''}
+  ${known?`<div class="hello">Přihlásit jako <b>${e(LF.name)}</b><a data-a="nm">Nejsi to ty?</a></div>`:`<label>${sp?'Jméno správce':'Jméno'}</label><input type="text" data-lf="name" value="${e(LF.name)}" placeholder="např. novak" autocomplete="username" autocapitalize="none" spellcheck="false">`}
+  ${pinI('pin','PIN'+(sp?' (4–8 číslic)':''),'••••')}${sp?pinI('pin2','PIN znovu','••••'):''}
+  <button class="lb" id="lb" data-a="${sp?'su':'li'}" ${lgOk()?'':'disabled'}>${sp?'Vytvořit správce':'Přihlásit'}</button>
+  <div class="m" style="margin-top:14px">Účty zakládá správce v záložce Data → Správa. Po hodině nečinnosti se aplikace sama odhlásí.</div></div>
+  <div class="lfoot">Data zůstávají jen v tomto telefonu. Zálohu do souboru najdeš v záložce Data.</div>`}
+function viewLoginOld(){const sp=!S.people.some(p=>p.pin);
+  return`<div class="lg"><div class="bdg">029</div><h1>Zmetkování odlitků</h1><div class="sub">Válec · slévárna</div>
+  ${sp?'<div class="m" style="margin-top:16px">První spuštění: založ účet správce. Pod tímto jménem a PINem se budeš přihlašovat a zakládat další lidi.</div>':''}
+  <label>${sp?'Jméno správce':'Jméno'}</label><input type="text" data-lf="name" value="${e(LF.name)}" placeholder="např. novak" autocomplete="off" autocapitalize="none" spellcheck="false">
+  <label>PIN${sp?' (4–8 číslic)':''}</label><input type="password" inputmode="numeric" data-lf="pin" value="${e(LF.pin)}" placeholder="••••" maxlength="8" autocomplete="off">
+  ${sp?'<label>PIN znovu</label><input type="password" inputmode="numeric" data-lf="pin2" value="'+e(LF.pin2)+'" placeholder="••••" maxlength="8" autocomplete="off">':''}
+  <button class="lb" id="lb" data-a="${sp?'su':'li'}" ${lgOk()?'':'disabled'}>${sp?'Vytvořit správce':'Přihlásit'}</button>
+  <div class="m" style="margin-top:14px">Účty zakládá administrátor v záložce Data → Správa.</div></div>`}
+function sprava(){const adm=user&&user.admin,sb=(a,v,l,c)=>bt(a,v,l,c,0).replace('class="b','class="b" style="min-height:34px;padding:0 8px" data-x="'),pw=(k,ph)=>`<input type="password" inputmode="numeric" maxlength="8" autocomplete="off" data-lf="${k}" value="${e(LF[k])}" placeholder="${ph}" style="margin-top:6px">`;
+  let h=`<h2>Správa</h2><div class="card"><div class="m">Přihlášen: <b>${e(user.name)}</b> (${rl(user)})</div>`;
+  if(adm)h+=`<table style="margin-top:8px">${S.people.filter(p=>p.pin).map(p=>`<tr><td><b>${e(p.name)}</b> <span class="m">${rl(p)}</span></td><td>${p.id===user.id?'<span class="m">ty</span>':sb('ur',p.id,p.admin?'zapisovatel':p.view?'správce':'prohlížení')+' '+sb('up',p.id,'nový PIN')+' '+sb('ud',p.id,AR==='ud'+p.id?'Smazat?':'✕','bad')}</td></tr>`).join('')}</table>
+  <div class="m" style="margin-top:10px">Přidání uživatele. Pole PIN použije i tlačítko „nový PIN“ u uživatele. Nový uživatel je zapisovatel; tlačítkem u jména změníš roli (jen prohlížení / správce).</div><input type="text" data-lf="an" value="${e(LF.an)}" placeholder="jméno nového uživatele" autocomplete="off" autocapitalize="none" style="margin-top:6px">${pw('ap','PIN (4–8 číslic)')}<button class="sv s2" data-a="ua">Přidat uživatele</button>`;
+  h+=`<div class="m" style="margin-top:14px">Změna mého PINu</div>${pw('mp','nový PIN (4–8 číslic)')}<button class="sv s2" data-a="um">Změnit můj PIN</button></div>`;
+  if(adm)h+=`<h2>Nastavení odlitku ${CUR}</h2><div class="card"><label class="m" for="cfn">Nejvyšší pořadové číslo (forem v kole)</label><input type="text" id="cfn" inputmode="numeric" value="${Math.max(...PL(S.d))}"><label class="m" for="cfv" style="display:block;margin-top:8px">Jaderník válec – čísla, oddělená čárkou</label><input type="text" id="cfv" value="${CV.join(', ')}"><label class="m" for="cfs" style="display:block;margin-top:8px">Jaderník skořepina – čísla, oddělená čárkou</label><input type="text" id="cfs" value="${CS.join(', ')}"><button class="sv s2" data-a="cfg">Uložit nastavení</button><div class="m">Změna platí od data, na které právě zapisuješ (${fmt(S.d)}), dál. Starší dny a už zapsané záznamy se nemění. Platí jen pro tento odlitek.</div></div>`;
+  return h}
+function viewZ(){const D=dayD(S.d),ko=D.k.find(x=>x.n===KS),cur=PL(S.d);if(!ko)KS=null;
+  let h=`<div class="card row"><div>Zapisuje: <b>${e(ppl().name)}</b> <span class="m">· odlitek ${CUR}</span></div><button class="b" style="min-height:36px;padding:0 12px" data-a="lo">Odhlásit</button></div>
+  <div class="card"><input type="date" id="dt" value="${S.d}"></div>`;
+  if(canW()&&!loadedToday()&&S.noBk!==today())h+=`<div class="card" style="border:2px solid var(--wr)"><b>Načti aktuální zálohu</b><div class="m" style="margin:4px 0 8px">Před zápisem načti zálohu ze složky (Data → Načíst zálohu ze souboru), ať nepřepíšeš práci kolegů.</div><div class="g" style="grid-template-columns:1fr 1fr"><button class="b" data-a="gd">Otevřít Data</button><button class="b" data-a="nb">Dnes bez zálohy</button></div></div>`;
+  if(AT){const t=tById(AT);h+=`<div class="card" style="border:2px solid var(--te)"><b>Režim zkoušky ${e(AT)}${t?' · '+e(t.name):''}</b><div class="m">Klepáním na čísla je přiřadíš ke zkoušce (kus bez vady), dalším klepnutím ho odebereš. Vadu u kusu zapíšeš po ukončení režimu otevřením čísla.</div><button class="b" style="width:100%;margin-top:6px" data-a="at0">Ukončit režim zkoušky</button></div>`}
+  h+=`<div class="row"><h2>1 · Kolo lití</h2><button class="b ${EM?'on':''}" style="min-height:34px;padding:0 10px" data-a="em">${EM?'Hotovo':'Upravit'}</button></div>
+  <div class="g c5">${D.k.map(x=>bt(EM?'rk':'k',x.n,EM?(AR==='rk'+x.n?'Smazat?':'✕ '+x.n):x.n,EM?'bad':'',KS===x.n)).join('')}</div>${EM?`<div class="g" style="grid-template-columns:1fr auto;margin-top:6px"><input type="text" id="nk" inputmode="numeric" maxlength="2" placeholder="číslo kola, které chceš přidat (např. 2)"><button class="b wr" data-a="ak">Přidat kolo</button></div><div class="m" style="margin-top:4px">Zadej číslo kola a klepni na Přidat. Kolo bez zápisů může smazat každý zapisovatel (klepni na ✕ číslo, pak ještě jednou). Kolo se zápisy smaže jen správce.</div>`:''}`;
+  if(EM){const mx=Math.max(NP,...cur,...S.hist.flatMap(x=>x.p));
+    h+=`<h2>Čísla forem – trvalá změna</h2><div class="m">Platí od ${fmt(S.d)} dál. Dřívější dny zůstanou, jak byly. Klepnutím číslo vyřadíš (nepočítá se z něj nic), dalším klepnutím vrátíš.</div>
+    <div class="g c7" style="margin-top:6px">${rng(mx).map(n=>cur.includes(n)?`<button class="b p g2" data-a="tp" data-v="${n}">${AR==='tp'+n?'?':n}</button>`:`<button class="b p x" style="text-decoration:line-through;opacity:.7" data-a="tp" data-v="${n}">${n}</button>`).join('')}</div>
+    <div class="g" style="grid-template-columns:1fr auto;margin-top:8px"><input type="text" id="np" inputmode="numeric" placeholder="nové číslo formy (např. ${mx+1})"><button class="b" data-a="ap">Přidat číslo</button></div>
+    <div class="m" style="margin-top:6px">Aktuálně platných čísel: ${cur.length}</div>`}
+  else if(ko){h+=`<h2>2 · Pořadové číslo (kolo ${ko.n})</h2><div class="g c7">${rng(Math.max(NP,...cur,...S.hist.flatMap(x=>x.p))).map(n=>{if(!cur.includes(n))return`<button class="b p x" style="text-decoration:line-through;opacity:.45" data-a="px" data-v="${n}">${n}</button>`;const r=D.r[ko.n+'-'+n],c=r?(r.te?(isScrap(r)?'zt':'zt zp'):r.nc?'x':r.ns?'n':isScrap(r)?'d':'g2'):'';
+    return`<button class="b p ${c}" data-a="p" data-v="${n}">${n}${r&&r.te?'<span class="tg">'+e(r.te)+'</span>':''}</button>`}).join('')}</div>
+    <div class="m">červeně zmetek · oranžově vada, ale není zmetek · šedě neodlito · fialově zkouška · zeleně dobrý kus · přeškrtnuté = vyřazené číslo formy</div>`}
+  else h+='<div class="m" style="margin-top:10px">Nejdřív vyber kolo lití, pak se zobrazí pořadová čísla.</div>';
+  return h}
+
+function viewDet(){const f=F,sel=(a,list,cur)=>list.map(v=>bt(a,v,v,'',cur===v)).join('');
+  let h=`<main class="dt"><div class="row" style="gap:6px"><h2 style="margin:2px 0;white-space:nowrap">Kolo ${f.k} · č. ${f.p}</h2><div style="display:flex;gap:6px">${bt('nc',1,'Neodlito','off',f.nc).replace('class="b','class="b" style="min-height:38px;padding:0 10px" data-x="')}<button class="b" style="min-height:38px;padding:0 12px" data-a="cl">✕</button></div></div>`;
+  if(!f.nc){
+    h+=`<h2>Zóna vady <span>1 = horní · 2 = dolní část · A–D strany</span></h2><div class="g c4">${Z.map(z=>bt('z',z,z,'bad',f.z.has(z))).join('')}</div>`;
+    {
+      h+=`<h2>Typ vady</h2><div class="m" style="margin:-4px 0 6px">„vytečené“ je bez zóny – do zón se nepočítá</div><div class="g c3">${T.map((t,i)=>bt('t',i,t,'bad',f.t.has(i))).join('')}</div><div class="g" style="grid-template-columns:1fr auto;margin-top:6px"><input type="text" data-f="j" value="${e(f.j)}" placeholder="jiné – popis (nepovinné)">${bt('ntp',1,'+ nový typ','',!!f.ntp)}</div>${f.ntp?`<div class="g" style="grid-template-columns:1fr auto;margin-top:6px"><input type="text" id="ntn" maxlength="30" placeholder="název nového typu vady (např. ulomené žebro)"><button class="b ok" data-a="nta">Přidat typ</button></div><div class="m">Nový typ se uloží natrvalo a bude se nabízet u všech kusů.</div>`:''}`;
+      const ce=!!f.ce,lv=[...new Set([...CV,...(f.v?[f.v]:[])])].sort((a,b)=>a-b),ls=[...new Set([...CS,...(f.s?[f.s]:[])])].sort((a,b)=>a-b),ed=(k,list)=>list.map(n=>bt('cx',k+':'+n,'✕ '+n,'bad',false)).join(''),
+        add=(k,ph)=>`<div class="g" style="grid-template-columns:1fr auto;margin-top:6px"><input type="text" id="n${k}" inputmode="numeric" maxlength="2" placeholder="${ph}"><button class="b ok" data-a="ca" data-v="${k}">Přidat</button></div>`;
+      h+=`<div class="row"><h2>Jádra</h2><button class="b${ce?' ok':''}" style="min-height:36px;padding:0 14px" data-a="ce">${ce?'Hotovo':'Upravit'}</button></div><div class="m">jaderník válec</div><div class="g c7">${ce?ed('cv',CV):sel('cv',lv,f.v)}</div>${ce?add('cv','číslo nového jaderníku válce'):''}<div class="m" style="margin-top:6px">jaderník skořepina (pár L+P)</div><div class="g c3">${ce?ed('cs',CS):sel('cs',ls,f.s)}</div>${ce?add('cs','číslo nové skořepiny')+'<div class="m">Změna platí od ${fmt(S.d)} dál. Starší dny i už zapsané kusy zůstanou beze změny.</div>':''}`}
+    const tzl=f.newT?'Nová zkouška':f.te?f.te+' ✓':'Zkouška…';
+    h+=`<div class="g c2" style="margin-top:8px">${bt('ns',1,'Vada, NENÍ zmetek','wr',f.ns)}${bt('tzp',1,tzl,'te',!!(f.te||f.newT||f.tzp))}</div>`;
+    if(f.tzp||f.newT)h+=`<h2>Zkouška</h2><div class="g">${bt('tz','','Není zkouška','',!f.te&&!f.newT)}${S.tests.filter(t=>!t.done||f.te===t.id).map(t=>'<div class="g" style="grid-template-columns:1fr auto">'+bt('tz',t.id,e(t.id+' · '+t.name),'te',f.te===t.id)+(t.done?'<span class="m" style="align-self:center;padding:0 8px">hotová ✓</span>':bt('kv',t.id,'✓ hotová','ok',0))+'</div>').join('')}${bt('tn0',1,'+ Nová zkouška','te',f.newT)}</div>`;
+    if(f.newT)h+=`<div class="m" style="margin-top:6px">Označení (zk${S.tc+1}) a datum ${fmt(S.d)} se doplní samo.</div><div style="margin-top:6px"><input type="text" data-f="tnn" value="${e(f.tnn)}" placeholder="název zkoušky (např. odfuk z jader)"></div><div style="margin-top:6px"><textarea data-f="tnt" rows="2" placeholder="popis zkoušky (nepovinné)">${e(f.tnt)}</textarea></div>`;
+    if(f.tzp||f.newT)h+=`<div style="margin-top:6px"><textarea data-f="no" rows="3" placeholder="poznámka k tomuto kusu – podrobnosti o zmetku">${e(f.no)}</textarea></div>`}
+  const ex=dayD(S.d).r[f.k+'-'+f.p];
+  const mi=[];if(!f.nc&&f.z.size){if(!f.t.size&&!f.j.trim())mi.push('typ vady');if(!f.v)mi.push('jaderník válec');if(!f.s)mi.push('skořepina')}
+  return h+`${ex&&canDel()?`<button class="sv s2" data-a="dl">${AR==='dl'?'Opravdu smazat? Klepni znovu':'Smazat tento záznam'}</button>`:''}<div class="stk"><div style="display:flex;gap:8px;align-items:center"><div class="mt" style="flex:1"></div><button class="sv" style="width:100%" data-a="sv">${ex?'Přepsat':'Uložit kus'}</button></div></div></main>`}
+
+function stats(dates,ex){const o={odl:0,sc:0,kolo:{},z:{},t:{},v:{},s:{},c:{},zt:{},cd:{}};
+  for(const dd of dates){const d=S.days[dd],pl=PL(dd);for(const kk of d.k){const ko=o.kolo[kk.n]=o.kolo[kk.n]||{o:0,s:0};
+    for(const p of pl){const r=d.r[kk.n+'-'+p];
+      if(r&&(r.nc||(ex&&r.te)))continue;o.odl++;ko.o++;if(!r)continue;
+      const sc=!!isScrap(r);
+      if(sc){o.sc++;ko.s++;if(!r.t.length||r.j||r.t.some(i=>!nzT(i)))r.z.forEach(z=>o.z[z]=(o.z[z]||0)+1);r.t.forEach(i=>o.t[T[i]]=(o.t[T[i]]||0)+1);if(r.j){const jn='jiné: '+String(r.j).trim().toLowerCase();o.t[jn]=(o.t[jn]||0)+1}const dk=[];r.t.forEach(i=>{if(nzT(i))dk.push(T[i]);else(r.z.length?r.z:['?']).forEach(z=>dk.push(T[i]+' · zóna '+z))});if(r.j)(r.z.length?r.z:['?']).forEach(z=>dk.push('jiné: '+String(r.j).trim().toLowerCase()+' · zóna '+z));if(!dk.length)r.z.forEach(z=>dk.push('bez typu · zóna '+z));dk.forEach(x=>{o.zt[x]=(o.zt[x]||0)+1;if(r.v&&r.s){const ck='V'+r.v+' + S'+r.s;(o.cd[ck]=o.cd[ck]||{})[x]=((o.cd[ck]||{})[x]||0)+1}})}
+      const add=(m,k)=>{m[k]=m[k]||{n:0,s:0};m[k].n++;if(sc)m[k].s++};
+      if(r.v)add(o.v,'Válec '+r.v);if(r.s)add(o.s,'Skořepina '+r.s);if(r.v&&r.s)add(o.c,'V'+r.v+' + S'+r.s)}}}
+  return o}
+function tstat(id){let n=0,s=0;const rows=[];for(const d of Object.keys(S.days).sort())for(const r of Object.values(S.days[d].r))if(r.te===id){n++;const bad=!!isScrap(r);if(bad)s++;rows.push([d,r,bad])}
+  rows.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:a[1].k-b[1].k||a[1].p-b[1].p);return{n,s,ok:n-s,rows}}
+const isEv=r=>!!(r.ev||r.z.length||r.t.length||r.j||r.ns||r.v||r.s||r.nc);
+const pc=(a,b)=>b?(100*a/b).toFixed(1)+' %':'–';
+function pareto(m){const en=Object.entries(m).sort((a,b)=>b[1]-a[1]),tot=en.reduce((s,x)=>s+x[1],0);
+  if(!tot)return'<div class="m">Zatím žádná data.</div>';let c=0;const mx=en[0][1];
+  return en.map(([k,v])=>{c+=v;return`<div class="bar"><i style="width:${100*v/mx}%"></i><span>${k}: ${v} ks · podíl ${pc(v,tot)} · kumul. ${pc(c,tot)}</span></div>`}).join('')}
+function rate(m,c1){const en=Object.entries(m).sort((a,b)=>b[1].s-a[1].s||String(a[0]).localeCompare(String(b[0]),'cs',{numeric:true}));
+  if(!en.length)return'<div class="m">Zatím žádná data.</div>';
+  return`<table><tr><th>${c1||''}</th><th>zmetků (ks)</th></tr>`+en.map(([k,v])=>`<tr><td>${e(k)}</td><td><b>${v.s}</b></td></tr>`).join('')+'</table>'}
+
+
+const PAL=['#2563eb','#dc2626','#f59e0b','#16a34a','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c','#4f46e5','#0d9488','#9ca3af'];
+function svgPareto(m){const en=Object.entries(m).sort((a,b)=>b[1]-a[1]),tot=en.reduce((s,x)=>s+x[1],0);if(!tot)return'<div class="m">Zatím žádná data.</div>';
+  const W=360,H=240,L=26,R=30,T=16,B=84,pw=W-L-R,ph=H-T-B,mx=en[0][1],bw=pw/en.length;let c=0,pts=[],g='';
+  [0,.5,1].forEach(f=>{g+=`<line x1="${L}" x2="${W-R}" y1="${T+ph*(1-f)}" y2="${T+ph*(1-f)}" stroke="currentColor" opacity=".12"/><text x="${W-R+3}" y="${T+ph*(1-f)+3}" font-size="9" fill="#f59e0b">${f*100}%</text>`});
+  en.forEach(([k,v],i)=>{c+=v;const x=L+i*bw,h=ph*v/mx;g+=`<rect x="${x+bw*.12}" y="${T+ph-h}" width="${bw*.76}" height="${h}" rx="2" fill="#2563eb"/><text x="${x+bw/2}" y="${T+ph-h-3}" font-size="9" text-anchor="middle" fill="currentColor">${v}</text><text transform="translate(${x+bw/2+3},${T+ph+8}) rotate(-50)" font-size="9" text-anchor="end" fill="currentColor">${e(k)}</text>`;pts.push((x+bw/2).toFixed(1)+','+(T+ph-ph*c/tot).toFixed(1))});
+  g+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2"/>`+pts.map(q=>`<circle cx="${q.split(',')[0]}" cy="${q.split(',')[1]}" r="2.5" fill="#f59e0b"/>`).join('');
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;color:inherit">${g}</svg>`}
+function svgPie(m){const en=Object.entries(m).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0),tot=en.reduce((s,x)=>s+x[1],0);if(!tot)return'';
+  let a0=-Math.PI/2,g='';const R=80,cx=90,cy=90;
+  en.forEach(([k,v],i)=>{const a1=a0+2*Math.PI*v/tot,col=PAL[Math.min(i,PAL.length-1)];
+    if(en.length===1)g+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="${col}"/>`;
+    else g+=`<path d="M${cx},${cy} L${(cx+R*Math.cos(a0)).toFixed(2)},${(cy+R*Math.sin(a0)).toFixed(2)} A${R},${R} 0 ${a1-a0>Math.PI?1:0} 1 ${(cx+R*Math.cos(a1)).toFixed(2)},${(cy+R*Math.sin(a1)).toFixed(2)} Z" fill="${col}" stroke="#fff" stroke-width="1"/>`;a0=a1});
+  return`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 180 180" style="width:170px;height:170px;flex:none">${g}</svg><div style="font-size:13px;flex:1;min-width:140px">`+en.map(([k,v],i)=>`<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${PAL[Math.min(i,PAL.length-1)]};margin-right:6px"></span>${e(k)}: <b>${pc(v,tot)}</b> (${v})</div>`).join('')+'</div></div>'}
+function rateChart(m,n,from){const en=Object.entries(m).sort((a,b)=>b[1].s-a[1].s||String(a[0]).localeCompare(String(b[0]),'cs',{numeric:true}));if(!en.length)return'';const mx=Math.max(...en.map(x=>x[1].s))||1;
+  return en.slice(from||0,n||999).map(([k,v])=>`<div class="rw"><div class="rt"><span>${e(k)}</span><b>${v.s}</b></div><div class="rb"><i style="width:${Math.max(4,100*v.s/mx)}%"></i></div></div>`).join('')}
+
+const topN=(m,n)=>Object.entries(m||{}).sort((a,b)=>b[1]-a[1]).slice(0,n);
+function dayRows(ks,ex){return ks.map(d=>{const q=stats([d],ex);return{d,odl:q.odl,sc:q.sc}})}
+function svgTrend(rows){if(rows.length<2)return'';const W=360,H=170,L=34,R=10,T0=14,B=34,pw=W-L-R,ph=H-T0-B,ys=rows.map(r=>r.odl?100*r.sc/r.odl:0),mx=Math.max(5,Math.ceil(Math.max(...ys)/5)*5);
+  const X=i=>L+pw*i/(rows.length-1),Y=v=>T0+ph*(1-v/mx);let g=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-R}" y1="${Y(mx*f)}" y2="${Y(mx*f)}" stroke="currentColor" opacity=".12"/><text x="${L-4}" y="${Y(mx*f)+3}" font-size="9" text-anchor="end" fill="currentColor">${(mx*f).toFixed(0)}%</text>`).join('');
+  g+=`<polyline points="${ys.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ')}" fill="none" stroke="#dc2626" stroke-width="2"/>`+ys.map((v,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3" fill="#dc2626"/><text x="${X(i).toFixed(1)}" y="${(Y(v)-6).toFixed(1)}" font-size="9" text-anchor="middle" fill="currentColor">${v.toFixed(1)}</text><text x="${X(i).toFixed(1)}" y="${H-18}" font-size="9" text-anchor="middle" fill="currentColor">${fmt(rows[i].d).slice(0,5)}</text>`).join('');
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg>`}
+function souhrn(o,ks){const t3=topN(o.zt,3),cb=Object.entries(o.c).sort((a,b)=>(b[1].s/b[1].n)-(a[1].s/a[1].n)||b[1].n-a[1].n);
+  return`<h2>Souhrn</h2><div class="card"><div class="m">OK kusy po kolech a celkem</div><table><tr><th>kolo</th><th>OK</th><th>odlito</th></tr>${Object.keys(o.kolo).sort((a,b)=>a-b).map(k=>`<tr><td>${k}</td><td><b>${o.kolo[k].o-o.kolo[k].s}</b></td><td>${o.kolo[k].o}</td></tr>`).join('')}<tr><td><b>celkem</b></td><td><b>${o.odl-o.sc}</b></td><td><b>${o.odl}</b></td></tr></table>
+</div>
+  ${ks.length>1?`<h2>Srovnání lití v čase (% zmetků)</h2><div class="card">${svgTrend(dayRows(ks,XT))}<table><tr><th>den</th><th>odlito</th><th>zmetků</th><th>%</th></tr>${dayRows(ks,XT).map(r=>`<tr><td>${fmt(r.d)}</td><td>${r.odl}</td><td>${r.sc}</td><td><b>${pc(r.sc,r.odl)}</b></td></tr>`).join('')}</table></div>`:''}`}
+function sumAoa(days){const A=[['SOUHRN – '+CASTS[CUR].t],[],['Den','Kolo','Odlito','Zmetků','OK (k prodeji)','% zmetků','Odlito bez zk.','Zmetků bez zk.','% bez zk.']],pr=(a,b)=>b?a/b:0,P='0.0%';
+  const row=(l1,l2,a,b)=>[l1,l2,a.odl,a.sc,a.odl-a.sc,{t:'n',v:pr(a.sc,a.odl),z:P},b.odl,b.sc,{t:'n',v:pr(b.sc,b.odl),z:P}];
+  for(const d of days){const a=stats([d]),b=stats([d],true);Object.keys(a.kolo).sort((x,y)=>x-y).forEach(k=>{const x=a.kolo[k],y=b.kolo[k]||{o:0,s:0};A.push([fmt(d),+k,x.o,x.s,x.o-x.s,{t:'n',v:pr(x.s,x.o),z:P},y.o,y.s,{t:'n',v:pr(y.s,y.o),z:P}])});A.push(row(fmt(d),'celkem den',a,b))}
+  const a=stats(days),b=stats(days,true);A.push(row('CELKEM','všechna lití',a,b),[],['NEJČASTĚJŠÍ VADY (typ · místo)','Počet zmetků s vadou','% ze zmetkových kusů (kus může mít víc vad)']);
+  topN(a.zt,8).forEach(([k,v])=>A.push([k,v,{t:'n',v:pr(v,a.sc),z:P}]));A.push([],['KOMBINACE JADER','Zmetků','Nejčastější vada','Počet']);
+  Object.entries(a.c).sort((x,y)=>y[1].s-x[1].s).forEach(([k,v])=>{const tt=topN(a.cd[k],1)[0];A.push([k,v.s,tt?tt[0]:'',tt?tt[1]:''])});
+  return A}
+function viewP(){const ks=Object.keys(S.days).filter(k=>Object.keys(S.days[k].r).length).sort(),sd=pf==='all'?ks:[pf].filter(k=>S.days[k]),o=stats(sd,XT),o0=stats(sd,true),o1=stats(sd,false),kr=Object.keys(o.kolo).sort((a,b)=>a-b);
+  return(user&&user.view&&!loadedToday()?`<div class="card" style="border:2px solid var(--wr)"><b>Načti aktuální zálohu</b><div class="m" style="margin:4px 0 8px">Abys viděl poslední data, načti zálohu ze složky (Data → Načíst zálohu ze souboru).</div><button class="b" style="width:100%" data-a="gd">Otevřít Data</button></div>`:'')+`<div class="card"><select id="pf"><option value="all">Všechny dny</option>${ks.map(k=>`<option value="${k}" ${pf===k?'selected':''}>${fmt(k)}</option>`).join('')}</select></div>
+  <div class="kpi"><div><b>${o.sc}</b><span>zmetků</span></div><div><b>${o.odl}</b><span>odlito (série)</span></div><div><b>${pc(o.sc,o.odl)}</b><span>zmetků</span></div><div><b>${o.odl-o.sc}</b><span>k prodeji</span></div></div>
+  <div class="card"><div class="g" style="grid-template-columns:1fr 1fr">${bt('xt',0,'Série se zkouškami','',!XT)}${bt('xt',1,'Série bez zkoušek','',XT)}</div><div class="m" style="margin-top:6px">Se zkouškami: ${o1.sc} / ${o1.odl} = <b>${pc(o1.sc,o1.odl)}</b> · Bez zkoušek: ${o0.sc} / ${o0.odl} = <b>${pc(o0.sc,o0.odl)}</b> (vynecháno ${o1.odl-o0.odl} zkouškových kusů). Grafy a tabulky níže ukazují: <b>${XT?'bez zkoušek':'se zkouškami'}</b>.</div></div>
+  ${souhrn(o,pf==='all'?ks:[])}
+  <h2>1 · Kde je nejčastější vada</h2><div class="card"><div class="m">Typ vady · místo na odlitku. Číslo = počet zmetků s touto vadou (kus může mít víc vad).</div>${(()=>{const zm=Object.fromEntries(Object.entries(o.zt).map(([k,v])=>[k,{s:v,n:0}]));return rateChart(zm,10)+(Object.keys(zm).length>10?`<details><summary class="m">Dalších ${Object.keys(zm).length-10} vad</summary>${rateChart(zm,999,10)}</details>`:'')})()}</div>
+  <h2>2 · Který jaderník dělá nejvíc zmetků</h2>
+  <div class="card"><div class="m">Jaderník válec – počet zmetků</div>${rateChart(o.v)}</div>
+  <div class="card"><div class="m">Jaderník skořepina – počet zmetků</div>${rateChart(o.s)}</div>
+  <div class="card"><div class="m">Kombinace válec + skořepina – počet zmetků</div>${rateChart(o.c,10)}${Object.keys(o.c).length>10?`<details><summary class="m">Dalších ${Object.keys(o.c).length-10} kombinací</summary>${rateChart(o.c,999,10)}</details>`:''}</div>
+  <h2>Podle kola lití</h2><div class="card">${kr.length?'<table><tr><th>kolo</th><th>zmetků</th><th>odlito</th><th>%</th><th>k prodeji</th></tr>'+kr.map(k=>`<tr><td>${k}</td><td>${o.kolo[k].s}</td><td>${o.kolo[k].o}</td><td><b>${pc(o.kolo[k].s,o.kolo[k].o)}</b></td><td>${o.kolo[k].o-o.kolo[k].s}</td></tr>`).join('')+'</table>':'<div class="m">Zatím žádná data.</div>'}</div>
+  <h2>Podrobně – zóny a typy vad</h2>
+  <div class="card"><div class="m">Pareto – zóny vad</div>${svgPareto(o.z)}<details><summary class="m">Tabulka</summary>${pareto(o.z)}</details></div>
+  <div class="card"><div class="m">Zóny vad – koláč</div>${svgPie(o.z)||'<div class="m">Zatím žádná data.</div>'}</div>
+  <div class="card"><div class="m">Pareto – typy vad</div>${svgPareto(o.t)}<details><summary class="m">Tabulka</summary>${pareto(o.t)}</details></div>
+  <div class="card"><div class="m">Typy vad – koláč</div>${svgPie(o.t)||'<div class="m">Zatím žádná data.</div>'}</div>
+  <div class="m">Kusy ze zkoušek zůstávají v sérii (počítají se normálně) a navíc jsou zvlášť vyhodnocené na záložce Zkoušky.</div>`}
+
+function viewK(){
+  let h=!canW()?'':`<h2>Nová zkouška</h2><div class="card"><input type="text" data-kf="name" value="${e(KN.name)}" placeholder="název (např. odfuk z jader)"><input type="date" data-kf="date" value="${KN.date}" style="margin-top:6px"><textarea data-kf="note" rows="2" placeholder="podrobnější popis (nepovinné)" style="margin-top:6px">${e(KN.note)}</textarea><button class="sv" data-a="kc">Vytvořit zkoušku (označení zk${S.tc+1} se doplní samo)</button></div>`;
+  if(!S.tests.length)return h+'<div class="m">Zatím žádná zkouška. Po vytvoření klepni na „Označit kusy“ a v Zápisu klepáním přiřaď čísla ke zkoušce.</div>';
+  const card=t=>{const s=tstat(t.id),ed=EK===t.id;if(!OP(t))return`<div class="card"><div class="row" data-a="kx" data-v="${t.id}" style="cursor:pointer"><b>▸ ${e(t.id)} · ${e(t.name)}${t.done?' ✓':''}</b><span class="m">${fmt(t.date)}</span></div><div class="m">kusů ${s.n} · OK ${s.ok} · NOK ${s.s} · ${pc(s.s,s.n)}</div></div>`;
+    return`<div class="card"><div class="row" data-a="kx" data-v="${t.id}" style="cursor:pointer"><b>▾ ${e(t.id)} · ${e(t.name)}${t.done?' ✓':''}</b><span class="m">${fmt(t.date)}</span></div>${t.note?`<div class="m">${e(t.note)}</div>`:''}
+    <div class="kpi" style="margin:8px 0"><div><b>${s.n}</b><span>kusů</span></div><div><b>${s.ok}</b><span>OK</span></div><div><b>${s.s}</b><span>NOK</span></div><div><b>${pc(s.s,s.n)}</b><span>% NOK</span></div></div>
+    <div class="g c3" ${canW()?'':'hidden'}>${t.done?bt('kv',t.id,'Znovu otevřít','',0):bt('at',t.id,'Označit kusy','te',AT===t.id)}${bt('ke',t.id,ed?'Hotovo':'Upravit','',ed)}${canDel()?bt('kd',t.id,AR==='kd'+t.id?'Smazat?':'Smazat','bad',0):''}</div>${t.done||!canW()?'':bt('kv',t.id,'✓ Zkouška vyhodnocena – skrýt z výběru','ok',0).replace('class="b','class="b" style="width:100%;margin-top:6px" data-x="')}
+    ${ed?`<div style="margin-top:8px"><input type="text" data-ef="name" value="${e(t.name)}"><input type="date" data-ef="date" value="${t.date}" style="margin-top:6px"><textarea data-ef="note" rows="2" style="margin-top:6px" placeholder="popis">${e(t.note)}</textarea></div>`:''}
+    ${s.rows.length?'<table style="margin-top:8px"><tr><th>den · kolo · č.</th><th>výsl.</th><th>zóny / typ</th><th>poznámka</th></tr>'+s.rows.map(([d,r,bad])=>`<tr><td>${fmt(d).slice(0,5)} · ${r.k} · ${r.p}</td><td><b style="color:var(${bad?'--bad':'--ok'})">${bad?'NOK':'OK'}</b></td><td>${e(r.z.join(' '))} ${e(r.t.map(i=>T[i]).join(', '))}</td><td style="text-align:left">${e(r.no)||'–'}</td></tr>`).join('')+'</table>':'<div class="m" style="margin-top:6px">Zatím žádné kusy.</div>'}</div>`};const act=S.tests.filter(t=>!t.done).reverse(),dn=S.tests.filter(t=>t.done).reverse();return h+(act.map(card).join('')||'<div class="m">Žádná otevřená zkouška.</div>')+(dn.length?'<h2>Vyhodnocené zkoušky</h2>'+dn.map(card).join(''):'')+'<div class="m">% NOK = kusy se zmetkem / všechny kusy zkoušky. Kus s vadou označený „NENÍ zmetek“ se počítá jako OK.</div>'}
+
+function viewD(){const V=!!(user&&user.view),ks=Object.keys(S.days).filter(k=>Object.keys(S.days[k].r).length).sort();
+  return pend()+`<h2>Uložené dny (klepni na den)</h2><div class="card">${ks.length?'<table><tr><th>den</th><th>kola</th><th>záznamů</th></tr>'+ks.map(k=>`<tr data-a="open" data-v="${k}" style="cursor:pointer"><td><b>${fmt(k)}</b></td><td>${S.days[k].k.length}</td><td>${Object.keys(S.days[k].r).length}</td></tr>`).join('')+'</table>':'<div class="m">Zatím nic uloženo.</div>'}</div>
+  <div class="m" style="margin:8px 2px">Data jsou uložená jen v tomto telefonu a nikam se neodesílají. Ven je dostaneš tlačítkem níže.</div>${undoCard()}
+  ${V?'':`<h2>Po zmetkování</h2><div class="card"><div class="m">Jedním klepnutím odešleš Excel i zálohu (Zmetkovani_${CUR}.xlsx a Zaloha_zmetkovani_${CUR}.json). Vyber OneDrive a složku ${CUR}; při dotazu zvol „Nahradit“, ve složce tak zůstane vždy jen poslední stav.</div><button class="sv" data-a="sa">Odeslat po zmetkování</button></div>`}
+  <h2>${V?'Excel ke stažení':'Jen Excel pro vedení'}</h2><div class="card"><div class="m">${V?'Excel si stáhneš až po načtení aktuální zálohy ze složky, aby obsahoval poslední data. ':''}Excel s grafy a tabulkami pro odlitek ${CUR}. Po klepnutí se otevře nabídka telefonu – vyber OneDrive (složka ${CUR}), Soubory nebo e-mail. Soubor se jmenuje Zmetkovani_${CUR}_datum.xlsx. Když nabídka není dostupná, soubor se stáhne do telefonu.</div><button class="sv s2" data-a="sh">Uložit / sdílet Excel</button></div>
+  <h2>${V?'Načíst aktuální zálohu':'Záloha dat (pro převzetí na druhém telefonu)'}</h2><div class="card">${V?'<div class="m">Vyber soubor Zaloha_zmetkovani_'+CUR+'.json z OneDrivu. Data v telefonu se nahradí zálohou. Jako prohlížeč nic neodesíláš.</div><button class="sv s2" data-a="bl">Načíst zálohu ze souboru</button><input type="file" id="bf" accept=".json,application/json" hidden>':`<div class="m">Soubor s celou historií odlitku ${CUR} (zmetky, zkoušky, čísla forem a jader). Soubor se vždy jmenuje stejně (Zaloha_zmetkovani_${CUR}.json). Při ukládání do stejné složky vyber „Nahradit“, ať ve složce zůstane jen poslední záloha. Před každým zápisem načti zálohu: telefon dostane data ze složky (Nahradit), nebo je spojí s tvými (Spojit).</div><button class="sv s2" data-a="bk">Uložit zálohu</button><button class="sv s2" data-a="bl">Načíst zálohu ze souboru</button><input type="file" id="bf" accept=".json,application/json" hidden>`}</div>
+  ${sprava()}${user&&user.admin?'':'<style>.wipe{display:none}</style>'}<h2 class="wipe">Smazání dat</h2><div class="card wipe"><div class="m">Pro smazání všech dat napiš SMAZAT. Nejdřív data odešli do zálohy. Těsně před smazáním se uloží záchranná kopie, kterou vrátíš v Data → Vrátit zpět.</div><input type="text" id="wp" placeholder="SMAZAT" autocomplete="off" style="margin:8px 0"><button class="sv s2" data-a="wipe" id="wb" disabled>Smazat všechna data v telefonu</button></div>`}
+
+function render(){applyCfg();const ov=$('#ov');
+  if(!user){$('#app').className='lgp';$('#app').innerHTML=viewLogin();$('#nv').hidden=true;setTimeout(()=>{const pi=document.querySelector('input[data-lf="pin"]');if(pi&&LF.name&&!user)pi.focus()},60)}
+  else{$('#app').className='';$('#nv').hidden=false;if(user.view&&tab==='z')tab='p';const zb=document.querySelector('nav button[data-tab="z"]');if(zb)zb.hidden=!!user.view;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+    $('#app').innerHTML=tab==='z'?viewZ():tab==='k'?viewK():tab==='p'?viewP():viewD()}
+  if(F&&F.open){ov.hidden=false;ov.innerHTML=viewDet()}else{ov.hidden=true;ov.innerHTML=''}
+  const bf=$('#bf');if(bf)bf.onchange=()=>{const f=bf.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const px=bkPrep(String(rd.result));if(px.err){toast(px.err)}else{BP={...px,name:f.name};BPC=false;BW=false;render();scrollTo(0,0)}bf.value=''};rd.readAsText(f)};
+  const dt=$('#dt');if(dt)dt.onchange=()=>{if(dt.value){S.d=dt.value;KS=null;render()}};
+  const pe=$('#pf');if(pe)pe.onchange=()=>{pf=pe.value;render()};
+  const wp=$('#wp');if(wp)wp.oninput=()=>{$('#wb').disabled=wp.value.trim().toUpperCase()!=='SMAZAT'}}
+document.addEventListener('input',ev=>{const t=ev.target;
+  if(t.dataset.f&&F){F[t.dataset.f]=t.value;saveDraft();persist()}
+  else if(t.dataset.lf){if(['pin','pin2','ap','mp'].includes(t.dataset.lf)&&/\D/.test(t.value)){t.value=t.value.replace(/\D/g,'')}LF[t.dataset.lf]=t.value;const lb=$('#lb');if(lb)lb.disabled=!lgOk()}
+  else if(t.dataset.kf)KN[t.dataset.kf]=t.value;
+  else if(t.dataset.ef){const x=tById(EK);if(x&&(t.dataset.ef!=='date'||t.value)){x[t.dataset.ef]=t.value;persist()}}});
+
+/* ===== zapisovač XLSX s grafy (bez knihoven) ===== */
+const XW={};
+XW.crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+XW.crc=b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=XW.crcT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0};
+XW.zip=files=>{const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+  const u16=v=>[v&255,(v>>8)&255],u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255];
+  for(const [name,data] of files){const nb=enc.encode(name),db=typeof data==='string'?enc.encode(data):data,crc=XW.crc(db);
+    const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(db.length),...u32(db.length),...u16(nb.length),...u16(0)]);
+    parts.push(lh,nb,db);
+    cen.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(db.length),...u32(db.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);
+    off+=lh.length+nb.length+db.length}
+  const cl=cen.reduce((s,a)=>s+a.length,0),end=new Uint8Array([0x50,0x4b,5,6,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cl),...u32(off),...u16(0)]);
+  const all=[...parts,...cen,end],out=new Uint8Array(all.reduce((s,a)=>s+a.length,0));let p=0;for(const a of all){out.set(a,p);p+=a.length}return out};
+XW.esc=s=>String(s==null?'':s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+XW.col=n=>{let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};
+XW.q=n=>"'"+String(n).replace(/'/g,"''")+"'";
+XW.ref=(sh,c1,r1,c2,r2)=>XW.q(sh)+'!$'+XW.col(c1)+'$'+(r1+1)+(c2==null?'':':$'+XW.col(c2)+'$'+(r2+1));
+/* styly: 0 běžný,1 hlavička,2 nadpis,3 %,4 text s rámečkem,5 číslo s rámečkem,6 součet text,7 součet číslo,8 součet %,9 poznámka,10 tučně,11 střed s rámečkem */
+XW.styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0%"/></numFmts>'+
+ '<fonts count="5"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="15"/><name val="Calibri"/></font><font><i/><sz val="10"/><color rgb="FF6B7280"/><name val="Calibri"/></font></fonts>'+
+ '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF323A42"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE8ECF1"/><bgColor indexed="64"/></patternFill></fill></fills>'+
+ '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFC9CFD8"/></left><right style="thin"><color rgb="FFC9CFD8"/></right><top style="thin"><color rgb="FFC9CFD8"/></top><bottom style="thin"><color rgb="FFC9CFD8"/></bottom><diagonal/></border></borders>'+
+ '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12">'+
+ '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'+
+ '<xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>'+
+ '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+ '<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1"/>'+
+ '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>'+
+ '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>'+
+ '<xf numFmtId="0" fontId="1" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+ '<xf numFmtId="0" fontId="1" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'+
+ '<xf numFmtId="164" fontId="1" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>'+
+ '<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+ '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+ '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>'+
+ '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+XW.sheet=(rows,o)=>{o=o||{};let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
+  x+='<sheetViews><sheetView workbookViewId="0" showGridLines="'+(o.grid===false?0:1)+'">'+(o.freeze?`<pane ySplit="${o.freeze}" topLeftCell="A${o.freeze+1}" activePane="bottomLeft" state="frozen"/>`:'')+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/>';
+  if(o.cols)x+='<cols>'+o.cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>';
+  x+='<sheetData>';rows.forEach((row,ri)=>{if(!row||!row.length)return;x+=`<row r="${ri+1}"${row.h?` ht="${row.h}" customHeight="1"`:''}>`;
+    row.forEach((c,ci)=>{if(c==null||c==='')return;let v=c,s=0;if(typeof c==='object'&&!Array.isArray(c)){v=c.v;s=c.s||0}const r=XW.col(ci)+(ri+1);
+      if(v==null||v==='')x+=`<c r="${r}" s="${s}"/>`;else if(typeof v==='number'&&isFinite(v))x+=`<c r="${r}" s="${s}"><v>${v}</v></c>`;else x+=`<c r="${r}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${XW.esc(v)}</t></is></c>`});x+='</row>'});
+  x+='</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape"/>';
+  if(o.drawing)x+='<drawing r:id="rId1"/>';return x+'</worksheet>'};
+XW.strRef=(f,vals)=>`<c:strRef><c:f>${XW.esc(f)}</c:f><c:strCache><c:ptCount val="${vals.length}"/>${vals.map((v,i)=>`<c:pt idx="${i}"><c:v>${XW.esc(v)}</c:v></c:pt>`).join('')}</c:strCache></c:strRef>`;
+XW.numRef=(f,vals,fmt)=>`<c:numRef><c:f>${XW.esc(f)}</c:f><c:numCache><c:formatCode>${fmt||'General'}</c:formatCode><c:ptCount val="${vals.length}"/>${vals.map((v,i)=>`<c:pt idx="${i}"><c:v>${+v||0}</c:v></c:pt>`).join('')}</c:numCache></c:numRef>`;
+XW.PAL=['2563EB','DC2626','F59E0B','16A34A','7C3AED','0891B2','DB2777','65A30D','EA580C','4F46E5','0D9488','9CA3AF'];
+XW.fill=c=>`<c:spPr><a:solidFill><a:srgbClr val="${c}"/></a:solidFill></c:spPr>`;
+XW.dl=(fmt,pos,pct)=>`<c:dLbls>${fmt?`<c:numFmt formatCode="${fmt}" sourceLinked="0"/>`:''}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr>${pos?`<c:dLblPos val="${pos}"/>`:''}<c:showLegendKey val="0"/><c:showVal val="${pct?0:1}"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="${pct?1:0}"/><c:showBubbleSize val="0"/></c:dLbls>`;
+XW.ser=(i,s,cat,kind)=>{const col=s.color||XW.PAL[i%XW.PAL.length];
+  const tx=`<c:tx>${XW.strRef(s.nameRef,[s.name])}</c:tx>`,cc=`<c:cat>${XW.strRef(cat.ref,cat.vals)}</c:cat>`,vv=`<c:val>${XW.numRef(s.ref,s.vals,s.fmt)}</c:val>`;
+  if(kind==='line')return`<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${tx}<c:spPr><a:ln w="28575"><a:solidFill><a:srgbClr val="${col}"/></a:solidFill></a:ln></c:spPr><c:marker><c:symbol val="circle"/><c:size val="6"/><c:spPr><a:solidFill><a:srgbClr val="${col}"/></a:solidFill></c:spPr></c:marker>${s.labels?XW.dl(s.fmt,'t'):''}${cc}${vv}<c:smooth val="0"/></c:ser>`;
+  if(kind==='pie')return`<c:ser><c:idx val="0"/><c:order val="0"/>${tx}${s.vals.map((v,k)=>`<c:dPt><c:idx val="${k}"/><c:bubble3D val="0"/>${XW.fill(XW.PAL[k%XW.PAL.length])}</c:dPt>`).join('')}${XW.dl('0%','bestFit',true)}${cc}${vv}</c:ser>`;
+  return`<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${tx}${XW.fill(col)}<c:invertIfNegative val="0"/>${s.labels===false?'':XW.dl(s.fmt,'outEnd')}${cc}${vv}</c:ser>`};
+XW.axTitle=t=>t?`<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="900" b="0"/></a:pPr><a:r><a:rPr lang="cs-CZ" sz="900" b="0"/><a:t>${XW.esc(t)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>`:'';
+XW.cax=(id,cross,pos,del)=>`<c:catAx><c:axId val="${id}"/><c:scaling><c:orientation val="${pos==='l'?'maxMin':'minMax'}"/></c:scaling><c:delete val="${del?1:0}"/><c:axPos val="${pos}"/><c:numFmt formatCode="General" sourceLinked="0"/><c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:crossAx val="${cross}"/><c:crosses val="autoZero"/><c:auto val="1"/><c:lblAlgn val="ctr"/><c:lblOffset val="100"/><c:noMultiLvlLbl val="0"/></c:catAx>`;
+XW.vax=(id,cross,pos,o)=>{o=o||{};return`<c:valAx><c:axId val="${id}"/><c:scaling><c:orientation val="minMax"/>${o.max!=null?`<c:max val="${o.max}"/>`:''}<c:min val="0"/></c:scaling><c:delete val="0"/><c:axPos val="${pos}"/>${o.grid?'<c:majorGridlines><c:spPr><a:ln w="6350"><a:solidFill><a:srgbClr val="D9DDE3"/></a:solidFill></a:ln></c:spPr></c:majorGridlines>':''}${XW.axTitle(o.title)}<c:numFmt formatCode="${o.fmt||'General'}" sourceLinked="0"/><c:majorTickMark val="out"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:crossAx val="${cross}"/><c:crosses val="${o.right?'max':'autoZero'}"/><c:crossBetween val="between"/></c:valAx>`};
+/* spec: {type:'combo'|'col'|'bar'|'line'|'pie', title, cat:{ref,vals}, series:[{name,nameRef,ref,vals,fmt,color,labels}], line:{...}} */
+XW.chart=sp=>{let body='';const t=sp.type;
+  if(t==='pie')body=`<c:pieChart><c:varyColors val="1"/>${XW.ser(0,sp.series[0],sp.cat,'pie')}<c:firstSliceAng val="0"/></c:pieChart>`;
+  else if(t==='line')body=`<c:lineChart><c:grouping val="standard"/><c:varyColors val="0"/>${sp.series.map((s,i)=>XW.ser(i,s,sp.cat,'line')).join('')}<c:marker val="1"/><c:axId val="111"/><c:axId val="112"/></c:lineChart>${XW.cax(111,112,'b')}${XW.vax(112,111,'l',{grid:1,fmt:sp.fmt,title:sp.yt})}`;
+  else{const h=t==='bar';body=`<c:barChart><c:barDir val="${h?'bar':'col'}"/><c:grouping val="clustered"/><c:varyColors val="0"/>${sp.series.map((s,i)=>XW.ser(i,s,sp.cat,'bar')).join('')}<c:gapWidth val="60"/><c:axId val="111"/><c:axId val="112"/></c:barChart>`;
+    if(t==='combo')body+=`<c:lineChart><c:grouping val="standard"/><c:varyColors val="0"/>${XW.ser(1,sp.line,sp.cat,'line')}<c:marker val="1"/><c:axId val="113"/><c:axId val="114"/></c:lineChart>`;
+    body+=XW.cax(111,112,h?'l':'b')+XW.vax(112,111,h?'b':'l',{grid:1,fmt:sp.fmt,title:sp.yt,max:sp.max,right:h});
+    if(t==='combo')body+=XW.cax(113,114,'b',true)+XW.vax(114,113,'r',{fmt:'0%',max:1,right:1})}
+  return'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><c:roundedCorners val="0"/><c:chart>'+
+   `<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1200" b="1"/></a:pPr><a:r><a:rPr lang="cs-CZ" sz="1200" b="1"/><a:t>${XW.esc(sp.title)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title><c:autoTitleDeleted val="0"/><c:plotArea><c:layout/>${body}</c:plotArea>`+
+   `${t==='pie'||t==='combo'||sp.series.length>1?`<c:legend><c:legendPos val="${t==='pie'?'r':'b'}"/><c:overlay val="0"/></c:legend>`:''}<c:plotVisOnly val="1"/><c:dispBlanksAs val="gap"/></c:chart></c:chartSpace>`};
+XW.drawing=anchors=>'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">'+
+  anchors.map((a,i)=>`<xdr:twoCellAnchor><xdr:from><xdr:col>${a.c1}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${a.r1}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:to><xdr:col>${a.c2}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${a.r2}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${i+2}" name="Graf ${i+1}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart r:id="rId${i+1}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor>`).join('')+'</xdr:wsDr>';
+/* book: sheets=[{name,rows,cols,freeze,charts:[{spec,c1,r1,c2,r2}]}] */
+XW.book=sheets=>{const f=[],ct=[],wbr=[],wbs=[];let nd=0,nc=0;const REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  sheets.forEach((s,i)=>{const ch=s.charts||[];let drawing=false;
+    if(ch.length){nd++;drawing=true;const dn=nd,rels=[];
+      ch.forEach((c,k)=>{nc++;f.push([`xl/charts/chart${nc}.xml`,XW.chart(c.spec)]);ct.push(`<Override PartName="/xl/charts/chart${nc}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>`);rels.push(`<Relationship Id="rId${k+1}" Type="${REL}/chart" Target="../charts/chart${nc}.xml"/>`)});
+      f.push([`xl/drawings/drawing${dn}.xml`,XW.drawing(ch)]);f.push([`xl/drawings/_rels/drawing${dn}.xml.rels`,`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join('')}</Relationships>`]);
+      ct.push(`<Override PartName="/xl/drawings/drawing${dn}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>`);
+      f.push([`xl/worksheets/_rels/sheet${i+1}.xml.rels`,`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/drawing" Target="../drawings/drawing${dn}.xml"/></Relationships>`])}
+    f.push([`xl/worksheets/sheet${i+1}.xml`,XW.sheet(s.rows,{cols:s.cols,freeze:s.freeze,drawing,grid:s.grid})]);
+    ct.push(`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`);
+    wbs.push(`<sheet name="${XW.esc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`);wbr.push(`<Relationship Id="rId${i+1}" Type="${REL}/worksheet" Target="worksheets/sheet${i+1}.xml"/>`)});
+  wbr.push(`<Relationship Id="rId${sheets.length+1}" Type="${REL}/styles" Target="styles.xml"/>`);
+  const head=[['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+ct.join('')+'</Types>'],
+    ['_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="${REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ['xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${REL}"><bookViews><workbookView/></bookViews><sheets>${wbs.join('')}</sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${wbr.join('')}</Relationships>`],
+    ['xl/styles.xml',XW.styles]];
+  return XW.zip([...head,...f])};
+
+async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[k].r).length).sort();if(!days.length&&!S.tests.length)return null;
+  const ex=XT,st=stats(days,ex),sheets=[],H=t=>({v:t,s:1}),N=(v,s)=>({v,s:s==null?5:s}),P=v=>({v,s:3}),X=v=>({v,s:4}),pr=(a,b)=>b?a/b:0,scope=ex?'bez zkoušek':'se zkouškami',ttl=CASTS[CUR].t;
+  const note=txt=>({v:txt,s:9});
+  /* ---------- Souhrn ---------- */
+  {const R=[[{v:ttl+' – SOUHRN ZMETKOVÁNÍ',s:2}],[note('Vytvořeno '+fmt(today())+' · grafy a tabulky vad a jader: série '+scope+' (volba v záložce Přehled) · zkouškové kusy se v sérii počítají jako ostatní')],[]];
+    const g=(a,k)=>k==='o'?(a.odl!=null?a.odl:a.o):(a.sc!=null?a.sc:a.s);
+    if(days.length){R.push([H('Den'),H('Kolo'),H('Odlito'),H('Zmetků'),H('OK (k prodeji)'),H('% zmetků'),H('Odlito bez zk.'),H('Zmetků bez zk.'),H('% bez zk.')]);R[R.length-1].h=32;
+      const line=(a,b,l1,l2,tot)=>[{v:l1,s:tot?6:4},{v:l2,s:tot?6:4},N(g(a,'o'),tot?7:5),N(g(a,'s'),tot?7:5),N(g(a,'o')-g(a,'s'),tot?7:5),{v:pr(g(a,'s'),g(a,'o')),s:tot?8:3},N(g(b,'o'),tot?7:5),N(g(b,'s'),tot?7:5),{v:pr(g(b,'s'),g(b,'o')),s:tot?8:3}];
+      for(const d of days){const a=stats([d]),b=stats([d],true);Object.keys(a.kolo).sort((x,y)=>x-y).forEach(k=>R.push(line(a.kolo[k],b.kolo[k]||{o:0,s:0},fmt(d),+k,false)));R.push(line(a,b,fmt(d),'celkem den',true))}
+      R.push(line(stats(days),stats(days,true),'CELKEM','všechna lití',true))}
+    R.push([]);R.push([{v:'Trend po dnech',s:10}]);R.push([H('Den'),H('Odlito'),H('Zmetků'),H('% zmetků')]);const ts=R.length;
+    const dr=days.map(d=>{const q=stats([d],ex);return{d,o:q.odl,s:q.sc}});dr.forEach(r=>R.push([X(fmt(r.d)),N(r.o),N(r.s),P(pr(r.s,r.o))]));const te=R.length-1;
+    R.push([]);R.push([{v:'Nejčastější vady (typ · místo)',s:10}]);R.push([H('Vada'),H('Zmetků s vadou (ks)'),H('% ze zmetkových kusů')]);const ds=R.length,top=Object.entries(st.zt).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    top.forEach(([k,v])=>R.push([X(k),N(v),P(pr(v,st.sc))]));const de=R.length-1;
+    R.push([]);R.push([{v:'Kombinace jader – nejčastější vada',s:10}]);R.push([H('Kombinace (válec + skořepina)'),H('Zmetků (ks)'),H('Nejčastější vada'),H('Počet')]);
+    Object.entries(st.c).sort((a,b)=>b[1].s-a[1].s).forEach(([k,v])=>{const t1=Object.entries(st.cd[k]||{}).sort((a,b)=>b[1]-a[1])[0];R.push([X(k),N(v.s),X(t1?t1[0]:''),N(t1?t1[1]:0)])});
+    const ch=[];
+    if(dr.length)ch.push({c1:10,r1:2,c2:19,r2:20,spec:{type:'col',title:'% zmetků po dnech ('+scope+')',fmt:'0%',cat:{ref:XW.ref('Souhrn',0,ts,0,te),vals:dr.map(r=>fmt(r.d))},series:[{name:'% zmetků',nameRef:XW.ref('Souhrn',3,ts-1),ref:XW.ref('Souhrn',3,ts,3,te),vals:dr.map(r=>pr(r.s,r.o)),fmt:'0.0%',color:'DC2626'}]}});
+    if(top.length)ch.push({c1:10,r1:21,c2:19,r2:40,spec:{type:'bar',title:'Nejčastější vady (počet)',cat:{ref:XW.ref('Souhrn',0,ds,0,de),vals:top.map(x=>x[0])},series:[{name:'Počet',nameRef:XW.ref('Souhrn',1,ds-1),ref:XW.ref('Souhrn',1,ds,1,de),vals:top.map(x=>x[1])}]}});
+    sheets.push({name:'Souhrn',rows:R,cols:[30,12,10,10,34,12,14,14,12],charts:ch})}
+  /* ---------- Pareto ---------- */
+  {const R=[[{v:ttl+' – PARETO VAD',s:2}],[note('Série '+scope+' · počet = kusy s vadou v dané zóně / daného typu · kusy bez vady se nepočítají')]],ch=[];
+    const block=(r0,title,map,keys,first)=>{const ks=[...new Set([...keys,...Object.keys(map)])],en=ks.map(k=>[k,map[k]||0]).sort((a,b)=>b[1]-a[1]),tot=en.reduce((s,x)=>s+x[1],0);
+      R[r0]=[{v:title,s:10}];R[r0+1]=[H(first),H('Počet'),H('% zmetků'),H('Kumulativně')];
+      let c=0;en.forEach(([k,v],i)=>{c+=v;R[r0+2+i]=[X(k),N(v),P(pr(v,tot)),P(pr(c,tot))]});const a=r0+2,b=r0+1+en.length;R[b+1]=[{v:'Celkem',s:6},N(tot,7),{v:tot?1:0,s:8},{v:'',s:6}];
+      const cat={ref:XW.ref('Pareto',0,a,0,b),vals:en.map(x=>x[0])},cm=[];let cc=0;en.forEach(x=>{cc+=x[1];cm.push(pr(cc,tot))});
+      ch.push({c1:5,r1:r0,c2:13,r2:r0+19,spec:{type:'combo',title:'Pareto – '+title.toLowerCase()+' ('+scope+')',cat,series:[{name:'Počet',nameRef:XW.ref('Pareto',1,a-1),ref:XW.ref('Pareto',1,a,1,b),vals:en.map(x=>x[1])}],line:{name:'Kumulativně',nameRef:XW.ref('Pareto',3,a-1),ref:XW.ref('Pareto',3,a,3,b),vals:cm,fmt:'0%',color:'F59E0B'}}});
+      if(tot)ch.push({c1:14,r1:r0,c2:21,r2:r0+19,spec:{type:'pie',title:title+' – podíl',cat,series:[{name:'Počet',nameRef:XW.ref('Pareto',1,a-1),ref:XW.ref('Pareto',1,a,1,b),vals:en.map(x=>x[1])}]}})};
+    block(3,'Zóny vad',st.z,Z,'Zóna');block(25,'Typy vad',st.t,T,'Typ vady');
+    sheets.push({name:'Pareto',rows:R,cols:[26,10,11,13],charts:ch})}
+  /* ---------- Jádra ---------- */
+  {const R=[[{v:ttl+' – ZMETKY PODLE JADER',s:2}],[note('Série '+scope+' · počet zmetků podle jaderníků (jádra dobrých kusů se nezapisují, proto se uvádějí kusy, ne procenta)')]],ch=[],nat=(a,b)=>String(a).localeCompare(String(b),'cs',{numeric:true});
+    const mapV={},mapS={};CV.forEach(n=>{mapV['Válec '+n]={n:0,s:0}});CS.forEach(n=>{mapS['Skořepina '+n]={n:0,s:0}});
+    Object.entries(st.v).forEach(([k,v])=>{mapV[k]=v});Object.entries(st.s).forEach(([k,v])=>{mapS[k]=v});
+    const mkc=(r0,title,entries,first,cx,cy,horiz)=>{R[r0]=[{v:title,s:10}];R[r0+1]=[H(first),H('Zmetků (ks)')];entries.forEach(([k,v],i)=>{R[r0+2+i]=[X(k),N(v.s)]});const a=r0+2,b=r0+1+entries.length;
+      if(!entries.length){R[r0+2]=[{v:'Zatím žádná data',s:9}];return b+1}const sh=entries.slice(0,horiz?15:entries.length),bb=a+sh.length-1;
+      ch.push({c1:cx,r1:cy,c2:cx+9,r2:cy+17,spec:{type:horiz?'bar':'col',title:'Počet zmetků – '+title.toLowerCase()+' ('+scope+')',cat:{ref:XW.ref('Jádra',0,a,0,bb),vals:sh.map(x=>x[0])},series:[{name:'Zmetků',nameRef:XW.ref('Jádra',1,a-1),ref:XW.ref('Jádra',1,a,1,bb),vals:sh.map(x=>x[1].s),color:'7C3AED'}]}});return b+1};
+    const ev=Object.entries(mapV).sort((a,b)=>nat(a[0],b[0])),es=Object.entries(mapS).sort((a,b)=>nat(a[0],b[0])),cs=Object.entries(st.c).sort((a,b)=>b[1].s-a[1].s);
+    const n1=mkc(3,'Jaderník válec',ev,'Jaderník válec',5,2),n2=mkc(n1+2,'Jaderník skořepina',es,'Jaderník skořepina',5,21);
+    mkc(Math.max(n2+2,n1+2),'Kombinace jader (podle počtu zmetků)',cs,'Kombinace (válec + skořepina)',5,40,true);
+    sheets.push({name:'Jádra',rows:R,cols:[30,14],charts:ch})}
+  /* ---------- dny ---------- */
+  const tp=[[H('Zkouška'),H('Název zkoušky'),H('Datum lití'),H('Kolo'),H('Pozice'),H('Zóny'),H('Typy'),H('Jiné'),H('Výsledek'),H('Jaderník válec'),H('Skořepina'),H('Poznámka ke kusu'),H('Zapsal')]],xm=v=>v?{v:'x',s:11}:{v:'',s:4};
+  for(const d of days){const D=S.days[d],R=[[{v:ttl+' – ZMETKOVÁNÍ',s:2}],[{v:'Datum lití:',s:10},{v:fmt(d),s:10}],[],[H('Kolo'),H('Pozice'),...Z.map(H),...T.map(H),H('jiné'),H('Vada, ale NENÍ zmetek'),H('Jaderník válec'),H('Jaderník skořepina'),H('Neodlito'),H('Zkouška')]];R[3].h=45;
+    for(const kk of D.k)PL(d).forEach((p,i)=>{const r=D.r[kk.n+'-'+p];
+      if(r&&r.te){const t=tById(r.te);tp.push([X(r.te),X(t?t.name:''),X(fmt(d)),N(kk.n),N(p),X(r.z.join(' ')),X(r.t.map(x=>T[x]).join(', ')),X(r.j||''),X(isScrap(r)?'NOK':'OK'),N(r.v||''),N(r.s||''),X(r.no||''),X(r.by||'')])}
+      R.push([{v:i===0?kk.n:'',s:11},{v:p,s:11},...Z.map(z=>xm(r&&r.z.includes(z))),...T.map((t,x)=>xm(r&&r.t.includes(x))),X(r?r.j:''),xm(r&&r.ns),{v:r&&r.v||'',s:11},{v:r&&r.s||'',s:11},xm(r&&r.nc),X(r&&r.te||'')])});
+    sheets.push({name:fmt(d).slice(0,5)+'.'+d.slice(0,4),rows:R,cols:[7,8,...Z.map(()=>5),...T.map(()=>14),14,12,10,12,9,10],freeze:4})}
+  /* ---------- zkoušky ---------- */
+  if(S.tests.length){const R=[[{v:ttl+' – ZKOUŠKY',s:2}],[note('Zkouškové kusy zůstávají v sérii; zde jsou vyhodnoceny zvlášť (OK = kus bez zmetku)')],[],[H('Zkouška'),H('Název'),H('Datum'),H('Popis'),H('Kusů celkem'),H('OK kusů'),H('NOK kusů'),H('% NOK')]],rec={};
+    for(const d of Object.keys(S.days))for(const r of Object.values(S.days[d].r))if(r.te){const q=rec[r.te]=rec[r.te]||{n:0,k:0};q.n++;if(isScrap(r))q.k++}
+    S.tests.forEach(t=>{const q=rec[t.id]||{n:0,k:0};R.push([X(t.id),X(t.name),X(fmt(t.date)),X(t.note||''),N(q.n),N(q.n-q.k),N(q.k),P(pr(q.k,q.n))])});
+    const a=4,b=3+S.tests.length;sheets.push({name:'Zkoušky',rows:R,cols:[10,26,12,36,12,10,10,9],charts:[{c1:9,r1:2,c2:18,r2:19,spec:{type:'col',title:'% NOK podle zkoušek',fmt:'0%',cat:{ref:XW.ref('Zkoušky',0,a,0,b),vals:S.tests.map(t=>t.id+' '+t.name)},series:[{name:'% NOK',nameRef:XW.ref('Zkoušky',7,3),ref:XW.ref('Zkoušky',7,a,7,b),vals:S.tests.map(t=>{const q=rec[t.id]||{n:0,k:0};return pr(q.k,q.n)}),fmt:'0.0%',color:'7C3AED'}]}}]});
+    sheets.push({name:'Zkoušky kusy',rows:tp,cols:[10,24,11,6,8,12,18,14,10,12,10,34,12],freeze:1})}
+  return XW.book(sheets)}
+
+function bakData(){return JSON.stringify({app:'zm029',v:2,cast:CUR,at:Date.now(),days:S.days,tests:S.tests,tc:S.tc,hist:S.hist,ch:S.ch||[],cfg:S.cfg,types:S.types||[],nz:S.nz||null})}
+const PK=()=>'zmprev_'+CUR;
+function snap(why){try{localStorage.setItem(PK(),JSON.stringify({at:Date.now(),why,d:{days:S.days,tests:S.tests,tc:S.tc,hist:S.hist,ch:S.ch||[],cfg:S.cfg,types:S.types||[],nz:S.nz||null}}))}catch(x){}}
+const prevSnap=()=>{try{return JSON.parse(localStorage.getItem(PK())||'null')}catch(x){return null}};
+function undoSnap(){const p=prevSnap();if(!p)return false;const d=p.d;snap('před vrácením');S.days=d.days;S.tests=d.tests;S.tc=d.tc;S.hist=d.hist;S.ch=d.ch;S.cfg=d.cfg;S.types=d.types;S.nz=d.nz;syncT();S.draft=null;F=null;KS=null;applyCfg();return true}
+function undoCard(){const p=prevSnap();if(!p||(user&&user.view))return'';return`<div class="card"><b>Vrátit zpět</b><div class="m" style="margin:4px 0 8px">Záchranná kopie z ${new Date(p.at).toLocaleString('cs-CZ')} (před akcí: ${e(p.why)}). Vrátí data do stavu těsně před touto akcí.</div><button class="sv s2" data-a="undo">${AR==='undo'?'Opravdu vrátit? Klepni znovu':'Vrátit data před: '+e(p.why)}</button></div>`}
+const canDel=()=>!!user&&!!user.admin;const noDel=()=>{toast('Mazat může jen správce. Opravu udělej přepsáním zápisu.')};
+const loadedToday=()=>!!S.loadAt&&new Date(S.loadAt).toDateString()===new Date().toDateString();
+const cntRec=dd=>Object.values(dd||{}).reduce((a,d)=>a+Object.keys((d&&d.r)||{}).length,0);
+function bkPrep(txt){let B;try{B=JSON.parse(txt)}catch(x){return{err:'Soubor není záloha aplikace'}}
+  if(!B||B.app!=='zm029'||typeof B.days!=='object')return{err:'Soubor není záloha aplikace'};
+  if((B.cast||'029')!==CUR)return{err:'Záloha je pro odlitek '+(B.cast||'029')+', ale otevřený je '+CUR+'. Přepni odlitek a načti ji znovu.'};
+  let lost=0;for(const [d,dd] of Object.entries(S.days))for(const [k,r] of Object.entries(dd.r||{})){const o=B.days[d]&&B.days[d].r&&B.days[d].r[k];if(!o||(r.ts||0)>(o.ts||0))lost++}
+  return{B,nb:cntRec(B.days),nl:cntRec(S.days),lost}}
+function replaceData(B){snap('nahrazení zálohou');S.days=B.days||{};S.tests=B.tests||[];S.tc=Math.max(B.tc||0,...S.tests.map(t=>+String(t.id).slice(2)||0));if(B.hist)S.hist=B.hist;S.ch=B.ch||[];if(B.cfg)S.cfg=B.cfg;S.types=B.types||[];if(B.nz)S.nz=B.nz;syncT();S.draft=null;F=null;KS=null;S.d=today();S.loadAt=Date.now();dayD(S.d);applyCfg();S.bkN=cntRec(S.days)}
+function pend(){let h='';
+  if(BP){const x=BP;h+=`<div class="card" style="border:2px solid var(--ac)"><b>Záloha ${e(x.name)}</b><div class="m" style="margin:4px 0 8px">Záloha obsahuje ${x.nb} záznamů, v telefonu je ${x.nl}.${x.lost?` <b>V telefonu je ${x.lost} záznamů, které v záloze nejsou nebo jsou novější</b> – po nahrazení by se ztratily. Nejdřív je odešli, nebo zvol Spojit.`:' Žádný záznam z telefonu se nahrazením neztratí.'}</div><button class="sv" data-a="bpr">${BPC?'Opravdu nahradit? Klepni znovu':'Nahradit data v telefonu zálohou'}</button>${user&&user.view?'':'<button class="sv s2" data-a="bpm">Spojit se zálohou</button>'}<button class="sv s2" data-a="bpx">Zrušit</button></div>`}
+  if(BW)h+=`<div class="card" style="border:2px solid var(--wr)"><b>${BW==='view'?'Nejdřív načti aktuální zálohu':BW==='less'?'V telefonu je méně záznamů než po načtení zálohy':'Dnes nebyla načtena záloha'}</b><div class="m" style="margin:4px 0 8px">${BW==='view'?'Excel obsahuje data z telefonu. Aby byl aktuální, načti nejdřív poslední zálohu ze složky OneDrivu.':BW==='less'?'Po posledním načtení nebo odeslání se něco smazalo ('+cntRec(S.days)+' záznamů místo '+S.bkN+'). Pokud to nebylo schválně, nic neodesílej a vrať data tlačítkem Vrátit zpět nebo načti zálohu ze složky.':'Pokud mezitím zapisoval někdo jiný, odesláním přepíšeš jeho data ve složce. Nejdřív načti zálohu ze složky. Odeslat bez načtení má smysl jen poprvé, kdy ve složce ještě žádná záloha není.'}</div><button class="sv" data-a="bl">Načíst zálohu ze souboru</button>${BW==='view'?'':'<button class="sv s2" data-a="sa2">Odeslat i tak</button>'}<button class="sv s2" data-a="bwx">Zrušit</button></div>`;
+  return h}
+function mergeData(txt){let B;try{B=JSON.parse(txt)}catch(x){return'Soubor není záloha aplikace'}
+  if(!B||B.app!=='zm029'||typeof B.days!=='object')return'Soubor není záloha aplikace';
+  if((B.cast||'029')!==CUR)return'Záloha je pro odlitek '+(B.cast||'029')+', ale otevřený je '+CUR+'. Přepni odlitek a načti ji znovu.';
+  const mp={},rn=[],mt={};let add=0,upd=0;syncT();const inc=BT.concat(B.types||[]);S.types=S.types||[];inc.forEach((nm,i)=>{let x=T.findIndex(q=>q.toLowerCase()===String(nm).toLowerCase());if(x<0){S.types.push(nm);syncT();x=T.length-1}mt[i]=x});
+  for(const t of (B.tests||[])){const same=S.tests.find(q=>q.id===t.id&&q.name===t.name&&q.date===t.date);
+    if(same){mp[t.id]=same.id;if(t.done&&!same.done)same.done=true}
+    else if(S.tests.some(q=>q.id===t.id)){const nid='zk'+(++S.tc);mp[t.id]=nid;rn.push(t.id+' → '+nid);S.tests.push({...t,id:nid})}
+    else{mp[t.id]=t.id;S.tests.push({...t});S.tc=Math.max(S.tc,+String(t.id).slice(2)||0)}}
+  S.tc=Math.max(S.tc||0,B.tc||0,...S.tests.map(t=>+String(t.id).slice(2)||0));
+  for(const [d,bd] of Object.entries(B.days)){const ld=S.days[d]=S.days[d]||{k:[],r:{}};
+    for(const k of bd.k||[])if(!ld.k.some(x=>x.n===k.n))ld.k.push({...k});ld.k.sort((a,b)=>a.n-b.n);
+    for(const [key,r] of Object.entries(bd.r||{})){const q={...r};q.t=(r.t||[]).map(i=>mt[i]!==undefined?mt[i]:i);if(q.te)q.te=mp[q.te]||q.te;const o=ld.r[key];
+      if(!o){ld.r[key]=q;add++}else if((q.ts||0)>(o.ts||0)){ld.r[key]=q;upd++}}}
+  for(const h of (B.hist||[]))if(!S.hist.some(x=>x.from===h.from))S.hist.push({...h});
+  S.ch=S.ch||[];for(const h of (B.ch||[]))if(!S.ch.some(x=>x.from===h.from))S.ch.push({...h});
+  if(B.nz&&!S.nz)S.nz=B.nz;
+  S.loadAt=Date.now();S.bkN=cntRec(S.days);
+  return'Převzato: '+add+' nových, '+upd+' aktualizovaných záznamů'+(rn.length?'; přečíslované zkoušky: '+rn.join(', '):'')}
+async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'.json',blob=new Blob([bakData()],{type:'application/json'});
+  if(mode==='sh'){try{const f=new File([blob],fn,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Záloha zmetkování '+CUR});return}}catch(x){if(x&&x.name==='AbortError')return}}
+  const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
+  try{await dl.save({filename:fn,data:blob})}catch(x){if(!x||x.code!=='declined')toast('Záloha se nepodařila')}}
+async function sendAll(force){if(!force&&!loadedToday()){BW=true;tab='d';render();scrollTo(0,0);return}if(!force&&S.bkN&&cntRec(S.days)<S.bkN){BW='less';tab='d';render();scrollTo(0,0);return}BW=false;let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
+  if(!buf){toast('Nic k odeslání');return}
+  const xn='Zmetkovani_'+CUR+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
+  try{const fs=[new File([xb],xn,{type:xb.type}),new File([jb],jn,{type:'application/json'})];if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title:'Zmetkování '+CUR});S.bkN=cntRec(S.days);persist();return}}catch(x){if(x&&x.name==='AbortError')return}
+  const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
+  try{await dl.save({filename:xn,data:new Blob([buf],{type:'application/octet-stream'})});await dl.save({filename:jn,data:jb});S.bkN=cntRec(S.days);persist()}catch(x){if(!x||x.code!=='declined')toast('Odeslání se nepodařilo')}}
+async function out(mode){if(user&&user.view&&!loadedToday()){BW='view';tab='d';render();scrollTo(0,0);return}let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
+  if(!buf){toast('Nic k exportu');return}const fn='Zmetkovani_'+CUR+'_'+today()+'.xlsx';
+  if(mode==='sh'){try{const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Zmetkování 029'});return}}catch(x){if(x&&x.name==='AbortError')return}}
+  const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
+  try{await dl.save({filename:fn,data:new Blob([buf],{type:'application/octet-stream'})})}catch(x){if(!x||x.code!=='declined')toast('Export se nepodařil')}}
+
+function loadF(k,p){const r=dayD(S.d).r[k+'-'+p];F=blank(k,p);if(r){F.z=new Set(r.z);F.t=new Set(r.t);F.j=r.j||'';F.ns=r.ns;F.nc=r.nc;F.v=r.v;F.s=r.s;F.te=r.te||'';F.no=r.no||'';F.good=(!r.z.length&&!r.t.length&&!r.j&&!r.nc)?1:0}}
+document.addEventListener('click',e2=>{
+  const n=e2.target.closest('nav button');if(n){tab=n.dataset.tab;render();scrollTo(0,0);return}
+  const b=e2.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v,D=S.days[S.d];
+  if(user&&user.view&&!['lo','um','open','xl','sh','kx','eye','xt','cast','bl','bpr','bpx','bwx','gd'].includes(a))return;
+  const ko=D&&D.k.find(x=>x.n===KS);
+  if(a==='pw'){S.who=v;scr='z'}
+  else if(a==='pa'){const i=$('#nm'),nm=i.value.trim();if(!nm)return;const id=Date.now().toString(36);S.people.push({id,name:nm});S.who=id;scr='z'}
+  else if(a==='pr'){if(ask('pr'+v))return;S.people=S.people.filter(p=>p.id!==v);if(S.who===v)S.who=null}
+  else if(a==='go')scr='z';
+  else if(a==='li'){if(Date.now()<LOCK){toast('Příliš mnoho pokusů, zkus to za chvíli');return}
+    const nm=LF.name.trim().toLowerCase(),p=S.people.find(q=>q.pin&&q.name.toLowerCase()===nm);
+    if(p&&p.pin===hsh(p.id+'|'+LF.pin)){user=p;S.lastName=p.name;FAIL=0;LF.pin='';scr='z';tab=p.view?'p':'z';restoreDraft()}
+    else{FAIL++;if(FAIL>=5){LOCK=Date.now()+30000;FAIL=0}LF.pin='';toast('Špatné jméno nebo PIN')}}
+  else if(a==='su'){const nm=LF.name.trim();if(nm.length<2||!/^\d{4,8}$/.test(LF.pin)||LF.pin!==LF.pin2){toast('Zkontroluj jméno a PIN (4–8 číslic, shodný)');return}
+    const id=Date.now().toString(36),p={id,name:nm,pin:hsh(id+'|'+LF.pin),admin:true};S.people=[p];user=p;S.lastName=nm;LF.pin=LF.pin2='';scr='z';tab='z'}
+  else if(a==='lo'){user=null;F=null;AT=null;KS=null;EM=false;LF.name=S.lastName||'';LF.pin='';LF.pin2=''}
+  else if(a==='ua'){if(!user||!user.admin)return;const nm=LF.an.trim();if(nm.length<2||!/^\d{4,8}$/.test(LF.ap)){toast('Zadej jméno a PIN (4–8 číslic)');return}
+    if(S.people.some(q=>q.name.toLowerCase()===nm.toLowerCase())){toast('Toto jméno už existuje');return}
+    const id=Date.now().toString(36);S.people.push({id,name:nm,pin:hsh(id+'|'+LF.ap),admin:false});LF.an=LF.ap='';toast('Uživatel přidán')}
+  else if(a==='ud'){if(!user||!user.admin||v===user.id)return;if(ask('ud'+v))return;S.people=S.people.filter(q=>q.id!==v);toast('Uživatel smazán')}
+  else if(a==='up'){if(!user||!user.admin)return;const q=S.people.find(x=>x.id===v);if(!q||!/^\d{4,8}$/.test(LF.ap)){toast('Do pole PIN zadej nový PIN (4–8 číslic)');return}q.pin=hsh(q.id+'|'+LF.ap);LF.ap='';toast('PIN změněn')}
+  else if(a==='ur'){if(!user||!user.admin||v===user.id)return;const q=S.people.find(x=>x.id===v);if(q){if(q.admin){q.admin=false;q.view=false}else if(q.view){q.view=false;q.admin=true}else{q.view=true}}}
+  else if(a==='um'){if(!/^\d{4,8}$/.test(LF.mp)){toast('Nový PIN: 4–8 číslic');return}user.pin=hsh(user.id+'|'+LF.mp);LF.mp='';toast('PIN změněn')}
+  else if(a==='xt'){XT=+v===1}
+  else if(a==='px'){toast('Číslo '+v+' je vyřazené – vrátíš ho v Upravit');return}
+  else if(a==='eye'){const i=document.querySelector('input[data-lf="pin"]');if(i)i.type=i.type==='password'?'text':'password';return}
+  else if(a==='nm'){S.lastName='';LF.name='';LF.pin=''}
+  else if(a==='kx'){const t=tById(v);if(t)KX[v]=!OP(t)}
+  else if(a==='who')scr='who';
+  else if(a==='em'){EM=!EM}
+  else if(a==='k'){KS=+v===KS?null:+v}
+  else if(a==='rk'){if(!canDel()&&Object.keys(D.r).some(k=>k.startsWith(v+'-'))){toast('V kole '+v+' jsou zápisy – smazat ho může jen správce. Zápisy oprav přepsáním.');return}if(ask('rk'+v))return;snap('smazání kola '+v);D.k=D.k.filter(x=>x.n!==+v);Object.keys(D.r).forEach(k=>{if(k.startsWith(v+'-'))delete D.r[k]});if(KS===+v)KS=null}
+  else if(a==='ak'){const d=dayD(S.d),i=$('#nk'),q=Math.floor(+(i&&i.value));if(!(q>=1&&q<=99)||d.k.some(x=>x.n===q)){toast('Zadej číslo kola 1–99, které ještě není v seznamu');return}d.k.push({n:q});d.k.sort((a,b)=>a.n-b.n)}
+  else if(a==='tp'){const l=PL(S.d).slice(),q=+v,i=l.indexOf(q);
+    if(i>=0){const has=Object.keys(D.r).some(k=>+k.split('-')[1]===q);if(has&&ask('tp'+q)){toast('Číslo '+q+' má zápisy – klepni znovu');return}l.splice(i,1)}
+    else{l.push(q);l.sort((x,y)=>x-y)}
+    setPL(S.d,l)}
+  else if(a==='ap'){const q=Math.floor(+$('#np').value),l=PL(S.d).slice();if(!(q>=1&&q<=999)||l.includes(q)){toast('Zadej číslo 1–999, které ještě není v seznamu');return}l.push(q);l.sort((x,y)=>x-y);setPL(S.d,l)}
+  else if(a==='p'){
+    if(AT){const key=KS+'-'+v,r=D.r[key];
+      if(!r)D.r[key]={k:KS,p:+v,z:[],t:[],j:'',ns:0,nc:0,v:null,s:null,te:AT,no:'',by:ppl()?ppl().name:'',ts:Date.now()};
+      else if(r.te===AT){if(!r.z.length&&!r.t.length&&!r.j)delete D.r[key];else r.te=''}
+      else{r.te=AT;r.nc=0}}
+    else loadF(KS,+v)}
+  else if(a==='at'){AT=AT===v?null:v;tab='z'}
+  else if(a==='at0'){AT=null}
+  else if(a==='cl'){S.draft=null;F=null}
+  else if(a==='nc'){F.nc=F.nc?0:1}
+  else if(a==='good'){F.good=F.good?0:1;if(F.good){F.z.clear();F.t.clear();F.j=''}}
+  else if(a==='z'){F.z.has(v)?F.z.delete(v):F.z.add(v);if(F.z.size)F.good=0}
+  else if(a==='t'){F.t.has(+v)?F.t.delete(+v):F.t.add(+v)}
+  else if(a==='cv'){F.v=F.v===+v?null:+v}
+  else if(a==='cs'){F.s=F.s===+v?null:+v}
+  else if(a==='ns'){F.ns=F.ns?0:1}
+  else if(a==='ce'){F.ce=!F.ce}
+  else if(a==='cx'){const [k,n]=String(v).split(':'),L=k==='cv'?CV:CS;if(L.length<=1){toast('Aspoň jedno číslo musí zůstat');return}const nl=L.filter(x=>x!==+n);setCores(k==='cv'?nl:CV,k==='cs'?nl:CS);toast('Číslo '+n+' se nenabízí od '+fmt(S.d)+' dál')}
+  else if(a==='ca'){const i=$('#n'+v),n=Math.floor(+(i&&i.value));const L=v==='cv'?CV:CS;if(!(n>=1&&n<=99)||L.includes(n)){toast('Zadej číslo 1–99, které ještě není v seznamu');return}const nl=[...L,n].sort((a,b)=>a-b);setCores(v==='cv'?nl:CV,v==='cs'?nl:CS);toast('Číslo '+n+' přidáno od '+fmt(S.d)+' dál')}
+  else if(a==='cast'){if(!user){setCast(v);render();return}}
+  else if(a==='cfg'){const np=Math.floor(+($('#cfn').value||0)),pl=x=>[...new Set(String(x).split(/[ ,;]+/).map(Number).filter(n=>Number.isInteger(n)&&n>0&&n<100))].sort((a,b)=>a-b),cv=pl($('#cfv').value),cs=pl($('#cfs').value);if(!(np>=1&&np<=200)||!cv.length||!cs.length){toast('Zadej počet čísel 1–200 a aspoň jedno číslo jádra válce i skořepiny');return}
+    const cur=PL(S.d),mx=Math.max(...cur);if(np!==mx){const nl=np>mx?[...cur,...rng(np).filter(x=>x>mx)]:cur.filter(x=>x<=np);S.hist=S.hist.filter(h=>h.from!==S.d);S.hist.push({from:S.d,p:nl})}
+    setCores(cv,cs);toast('Nastavení platí od '+fmt(S.d)+' dál')}
+  else if(a==='ntp'){F.ntp=!F.ntp;if(F.ntp)SC='#ntn'}
+  else if(a==='nta'){const i=$('#ntn'),n=(i&&i.value||'').trim();if(!n){toast('Napiš název typu vady');return}const x=T.findIndex(q=>q.toLowerCase()===n.toLowerCase());if(x>=0){F.t.add(x);F.ntp=false;toast('Tento typ už existuje – vybrán')}else{S.types.push(n);syncT();F.t.add(T.length-1);F.ntp=false;toast('Přidán typ: '+n)}}
+  else if(a==='tzp'){F.tzp=!F.tzp;if(F.tzp)SC='bottom'}
+  else if(a==='tz'){F.te=v;F.newT=0}
+  else if(a==='tn0'){F.newT=F.newT?0:1;if(F.newT){F.te='';SC='bottom'}}
+  else if(a==='sv'){if(!(F.nc||F.z.size||F.t.size||F.j.trim()||F.te||F.newT||F.v||F.s)){toast('Vyber zónu vady, typ nebo napiš „jiné“, zkoušku, jádro nebo „Forma se neodlila“');return}
+    let te=F.nc?'':F.te;
+    if(!F.nc&&F.newT){if(!F.tnn.trim()){toast('Napiš název nové zkoušky');return}const t={id:'zk'+(++S.tc),name:F.tnn.trim(),date:S.d,note:F.tnt.trim()};S.tests.push(t);te=t.id}
+    const d=dayD(S.d),off=F.nc||F.good;d.r[F.k+'-'+F.p]={k:F.k,p:F.p,z:off||([...F.t].length&&!F.j.trim()&&[...F.t].every(nzT))?[]:[...F.z],t:off?[]:[...F.t],j:off?'':F.j.trim(),ns:F.ns,nc:F.nc,v:F.nc?null:F.v,s:F.nc?null:F.s,te,no:te?F.no.trim():'',ev:1,by:ppl()?ppl().name:'',ts:Date.now()};
+    S.draft=null;F=null;toast(te?'Uloženo ✓ ('+te+')':'Uloženo ✓')}
+  else if(a==='dl'){if(!canDel()){noDel();return}if(ask('dl'))return;snap('smazání záznamu kusu');S.draft=null;delete dayD(S.d).r[F.k+'-'+F.p];F=null;toast('Smazáno')}
+  else if(a==='kc'){if(!KN.name.trim()){toast('Napiš název zkoušky');return}S.tests.push({id:'zk'+(++S.tc),name:KN.name.trim(),date:KN.date||today(),note:KN.note.trim()});KN={name:'',date:today(),note:''};toast('Zkouška vytvořena')}
+  else if(a==='kv'){const t=tById(v);if(t){t.done=!t.done;if(t.done&&AT===v)AT=null}}
+  else if(a==='ke'){EK=EK===v?null:v}
+  else if(a==='kd'){if(!canDel()){noDel();return}if(ask('kd'+v))return;snap('smazání zkoušky '+v);S.tests=S.tests.filter(t=>t.id!==v);for(const dd of Object.keys(S.days))for(const r of Object.values(S.days[dd].r))if(r.te===v)r.te='';if(AT===v)AT=null;EK=null;toast('Zkouška smazána')}
+  else if(a==='open'){pf=v;tab='p';scrollTo(0,0)}
+  else if(a==='sa'){sendAll(false);return}else if(a==='sa2'){sendAll(true);return}else if(a==='bwx'){BW=false;render();return}else if(a==='bpx'){BP=null;BPC=false;render();return}else if(a==='bpm'){if(BP){const m=mergeData(JSON.stringify(BP.B));BP=null;BPC=false;persist();render();toast(m)}return}else if(a==='bpr'){if(BP){if(BP.lost&&!BPC){BPC=true;render();return}replaceData(BP.B);BP=null;BPC=false;persist();render();toast('Data v telefonu nahrazena zálohou')}return}else if(a==='undo'){if(ask('undo'))return;if(undoSnap()){persist();toast('Data vrácena do stavu před akcí')}return}else if(a==='gd'){tab='d';render();scrollTo(0,0);return}else if(a==='nb'){S.noBk=today();persist();render();return}else if(a==='xl'){out();return}else if(a==='sh'){out('sh');return}
+  else if(a==='bk'){bak('sh');return}else if(a==='bl'){const f=$('#bf');if(f)f.click();return}
+  else if(a==='wipe'){const w=$('#wp');if(!user||!user.admin||!w||w.value.trim().toUpperCase()!=='SMAZAT')return;snap('smazání všech dat');S.days={};S.tests=[];S.hist=[];S.tc=0;AT=null;toast('Data smazána')}
+  if(F&&F.open)saveDraft();persist();render();
+  if(SC){const q=SC;SC=null;setTimeout(()=>{const o=$('#ov');if(!o)return;const t=q==='bottom'?null:o.querySelector(q);if(t){t.scrollIntoView({block:'center',behavior:'smooth'});t.focus&&t.focus({preventScroll:true})}else o.scrollTo({top:o.scrollHeight,behavior:'smooth'})},80)}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.dataset&&ev.target.dataset.lf){const b=$('#lb');if(b&&!b.disabled)b.click()}});
+function kbCheck(){const vv=window.visualViewport;if(!vv)return;const kb=Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop));document.body.classList.toggle('kbd',kb>120);document.documentElement.style.setProperty('--kb',(kb>120?kb+16:0)+'px')}
+function ensureSave(){setTimeout(()=>{const a=document.activeElement,o=$('#ov'),vv=window.visualViewport,b=o&&o.querySelector('[data-a=sv]');if(!a||!b||!vv||!o.contains(a)||!document.body.classList.contains('kbd'))return;const vb=vv.offsetTop+vv.height-10,d=b.getBoundingClientRect().bottom-vb;if(d<=0)return;const at=a.getBoundingClientRect().top;o.scrollBy({top:at-d>vv.offsetTop+8?d:Math.max(0,at-vv.offsetTop-8),behavior:'smooth'})},300)}
+if(window.visualViewport){visualViewport.addEventListener('resize',()=>{kbCheck();ensureSave()});visualViewport.addEventListener('scroll',kbCheck)}
+document.addEventListener('focusin',()=>{kbCheck();ensureSave()});document.addEventListener('focusout',()=>setTimeout(kbCheck,200));
+let SC=null,LAST=Date.now();const IDLE=3600000;
+const autoOut=()=>{if(user&&Date.now()-LAST>IDLE){user=null;F=null;AT=null;KS=null;EM=false;LF.name=S.lastName||'';LF.pin='';LF.pin2='';render()}};
+['click','keydown','touchstart','input'].forEach(n=>document.addEventListener(n,ev=>{if(user&&Date.now()-LAST>IDLE){autoOut();ev.stopPropagation();ev.preventDefault();return}LAST=Date.now()},true));
+setInterval(autoOut,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoOut()});
+render();
+</script></body></html>
