@@ -456,12 +456,12 @@ async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'.json',blob=new Blob
 async function sendAll(force){if(!force&&!loadedToday()){BW=true;tab='d';render();scrollTo(0,0);return}if(!force&&S.bkN&&cntRec(S.days)<S.bkN){BW='less';tab='d';render();scrollTo(0,0);return}BW=false;let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k odeslání');return}
   const xn='Zmetkovani_'+CUR+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
-  try{const fs=[new File([xb],xn,{type:xb.type}),new File([jb],jn,{type:'application/json'})];if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title:'Zmetkování '+CUR});S.bkN=cntRec(S.days);persist();return}}catch(x){if(x&&x.name==='AbortError')return}
+  try{const fs=[new File([xb],xn,{type:xb.type}),new File([jb],jn,{type:'application/json'})];if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs});S.bkN=cntRec(S.days);persist();return}}catch(x){if(x&&x.name==='AbortError')return}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:xn,data:new Blob([buf],{type:'application/octet-stream'})});await dl.save({filename:jn,data:jb});S.bkN=cntRec(S.days);persist()}catch(x){if(!x||x.code!=='declined')toast('Odeslání se nepodařilo')}}
 async function out(mode){if(user&&user.view&&!loadedToday()){BW='view';tab='d';render();scrollTo(0,0);return}let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k exportu');return}const fn='Zmetkovani_'+CUR+'_'+today()+'.xlsx';
-  if(mode==='sh'){try{const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Zmetkování 029'});return}}catch(x){if(x&&x.name==='AbortError')return}}
+  if(mode==='sh'){try{const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(x){if(x&&x.name==='AbortError')return}}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:fn,data:new Blob([buf],{type:'application/octet-stream'})})}catch(x){if(!x||x.code!=='declined')toast('Export se nepodařil')}}
 
