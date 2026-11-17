@@ -56,6 +56,7 @@ if(typeof window.claude==='undefined'){window.claude={use:async()=>({save:async(
 <script>
 const Z=['1A','1B','1C','1D','2A','2B','2C','2D'],BT=['chybějící žebra','broky','vytečené'];
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0'),rng=n=>Array.from({length:n},(_,i)=>i+1);
+const stamp=()=>{S.ver=(S.ver||0)+1;try{persist()}catch(e){}return'v'+pad(S.ver)};
 const today=()=>{const n=new Date();return n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate())};
 const fmt=d=>d.split('-').reverse().join('.'),e=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const CASTS={'029':{t:'ODLITEK VÁLCE 1201001029',sub:'Válec · slévárna'},'014':{t:'ODLITEK 014',sub:'Slévárna'}};
@@ -413,7 +414,7 @@ async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[
     sheets.push({name:'Zkoušky kusy',rows:tp,cols:[10,24,11,6,8,12,18,14,10,12,10,34,12],freeze:1})}
   return XW.book(sheets)}
 
-function bakData(){return JSON.stringify({app:'zm029',v:3,people:(S.people||[]).filter(p=>p.pin).map(p=>({id:p.id,name:p.name,pin:p.pin,admin:!!p.admin,view:!!p.view})),cast:CUR,at:Date.now(),days:S.days,tests:S.tests,tc:S.tc,hist:S.hist,ch:S.ch||[],cfg:S.cfg,types:S.types||[],nz:S.nz||null})}
+function bakData(){return JSON.stringify({app:'zm029',v:3,people:(S.people||[]).filter(p=>p.pin).map(p=>({id:p.id,name:p.name,pin:p.pin,admin:!!p.admin,view:!!p.view})),cast:CUR,at:Date.now(),days:S.days,tests:S.tests,tc:S.tc,hist:S.hist,ch:S.ch||[],cfg:S.cfg,types:S.types||[],nz:S.nz||null,ver:S.ver||0})}
 const PK=()=>'zmprev_'+CUR;
 function snap(why){try{localStorage.setItem(PK(),JSON.stringify({at:Date.now(),why,d:{days:S.days,tests:S.tests,tc:S.tc,hist:S.hist,ch:S.ch||[],cfg:S.cfg,types:S.types||[],nz:S.nz||null}}))}catch(x){}}
 const prevSnap=()=>{try{return JSON.parse(localStorage.getItem(PK())||'null')}catch(x){return null}};
@@ -434,7 +435,7 @@ function importUsers(txt){let B;try{B=JSON.parse(txt)}catch(x){return'Soubor nen
   if(!B||B.app!=='zm029')return'Soubor není záloha aplikace';
   if(!(B.people||[]).some(p=>p&&p.pin))return'Tato záloha neobsahuje uživatele (je ze starší verze). Až bude na starém telefonu odeslána nová záloha, načti ji znovu.';
   const n=syncPeople(B);persist();return n?'Načteno uživatelů: '+n+'. Přihlas se svým jménem a PINem.':'Uživatelé už jsou v telefonu. Přihlas se svým jménem a PINem.'}
-function replaceData(B){snap('nahrazení zálohou');syncPeople(B);S.days=B.days||{};S.tests=B.tests||[];S.tc=Math.max(B.tc||0,...S.tests.map(t=>+String(t.id).slice(2)||0));if(B.hist)S.hist=B.hist;S.ch=B.ch||[];if(B.cfg)S.cfg=B.cfg;S.types=B.types||[];if(B.nz)S.nz=B.nz;syncT();S.draft=null;F=null;KS=null;S.d=today();S.loadAt=Date.now();dayD(S.d);applyCfg();S.bkN=cntRec(S.days)}
+function replaceData(B){snap('nahrazení zálohou');syncPeople(B);S.days=B.days||{};S.tests=B.tests||[];S.tc=Math.max(B.tc||0,...S.tests.map(t=>+String(t.id).slice(2)||0));if(B.hist)S.hist=B.hist;S.ch=B.ch||[];if(B.cfg)S.cfg=B.cfg;S.types=B.types||[];if(B.nz)S.nz=B.nz;S.ver=Math.max(S.ver||0,B.ver||0);syncT();S.draft=null;F=null;KS=null;S.d=today();S.loadAt=Date.now();dayD(S.d);applyCfg();S.bkN=cntRec(S.days)}
 function pend(){let h='';
   if(BP){const x=BP;h+=`<div class="card" style="border:2px solid var(--ac)"><b>Záloha ${e(x.name)}</b><div class="m" style="margin:4px 0 8px">Záloha obsahuje ${x.nb} záznamů, v telefonu je ${x.nl}.${x.lost?` <b>V telefonu je ${x.lost} záznamů, které v záloze nejsou nebo jsou novější</b> – po nahrazení by se ztratily. Nejdřív je odešli, nebo zvol Spojit.`:' Žádný záznam z telefonu se nahrazením neztratí.'}</div><button class="sv" data-a="bpr">${BPC?'Opravdu nahradit? Klepni znovu':'Nahradit data v telefonu zálohou'}</button>${user&&user.view?'':'<button class="sv s2" data-a="bpm">Spojit se zálohou</button>'}<button class="sv s2" data-a="bpx">Zrušit</button></div>`}
   if(BW)h+=`<div class="card" style="border:2px solid var(--wr)"><b>${BW==='view'?'Nejdřív načti aktuální zálohu':BW==='less'?'V telefonu je méně záznamů než po načtení zálohy':'Dnes nebyla načtena záloha'}</b><div class="m" style="margin:4px 0 8px">${BW==='view'?'Excel obsahuje data z telefonu. Aby byl aktuální, načti nejdřív poslední zálohu ze složky OneDrivu.':BW==='less'?'Po posledním načtení nebo odeslání se něco smazalo ('+cntRec(S.days)+' záznamů místo '+S.bkN+'). Pokud to nebylo schválně, nic neodesílej a vrať data tlačítkem Vrátit zpět nebo načti zálohu ze složky.':'Pokud mezitím zapisoval někdo jiný, odesláním přepíšeš jeho data ve složce. Nejdřív načti zálohu ze složky. Odeslat bez načtení má smysl jen poprvé, kdy ve složce ještě žádná záloha není.'}</div><button class="sv" data-a="bl">Načíst zálohu ze souboru</button>${BW==='view'?'':'<button class="sv s2" data-a="sa2">Odeslat i tak</button>'}<button class="sv s2" data-a="bwx">Zrušit</button></div>`;
@@ -456,20 +457,20 @@ function mergeData(txt){let B;try{B=JSON.parse(txt)}catch(x){return'Soubor není
   for(const h of (B.hist||[]))if(!S.hist.some(x=>x.from===h.from))S.hist.push({...h});
   S.ch=S.ch||[];for(const h of (B.ch||[]))if(!S.ch.some(x=>x.from===h.from))S.ch.push({...h});
   if(B.nz&&!S.nz)S.nz=B.nz;
-  S.loadAt=Date.now();S.bkN=cntRec(S.days);
+  S.ver=Math.max(S.ver||0,B.ver||0);S.loadAt=Date.now();S.bkN=cntRec(S.days);
   return'Převzato: '+add+' nových, '+upd+' aktualizovaných záznamů'+(rn.length?'; přečíslované zkoušky: '+rn.join(', '):'')}
-async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'.json',blob=new Blob([bakData()],{type:'application/json'});
+async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'_'+stamp()+'.json',blob=new Blob([bakData()],{type:'application/json'});
   if(mode==='sh'){try{const f=new File([blob],fn,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Záloha zmetkování '+CUR});return}}catch(x){if(x&&x.name==='AbortError')return}}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:fn,data:blob})}catch(x){if(!x||x.code!=='declined')toast('Záloha se nepodařila')}}
 async function sendAll(force){if(!force&&!loadedToday()){BW=true;tab='d';render();scrollTo(0,0);return}if(!force&&S.bkN&&cntRec(S.days)<S.bkN){BW='less';tab='d';render();scrollTo(0,0);return}BW=false;let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k odeslání');return}
-  const xn='Zmetkovani_'+CUR+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
+  const st=stamp(),xn='Zmetkovani_'+CUR+'_'+st+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'_'+st+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
   try{const fs=[new File([xb],xn,{type:xb.type}),new File([jb],jn,{type:'application/json'})];if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs});S.bkN=cntRec(S.days);persist();return}}catch(x){if(x&&x.name==='AbortError')return}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:xn,data:new Blob([buf],{type:'application/octet-stream'})});await dl.save({filename:jn,data:jb});S.bkN=cntRec(S.days);persist()}catch(x){if(!x||x.code!=='declined')toast('Odeslání se nepodařilo')}}
 async function out(mode){if(user&&user.view&&!loadedToday()){BW='view';tab='d';render();scrollTo(0,0);return}let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
-  if(!buf){toast('Nic k exportu');return}const fn='Zmetkovani_'+CUR+'_'+today()+'.xlsx';
+  if(!buf){toast('Nic k exportu');return}const fn='Zmetkovani_'+CUR+'_'+stamp()+'.xlsx';
   if(mode==='sh'){try{const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(x){if(x&&x.name==='AbortError')return}}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:fn,data:new Blob([buf],{type:'application/octet-stream'})})}catch(x){if(!x||x.code!=='declined')toast('Export se nepodařil')}}
