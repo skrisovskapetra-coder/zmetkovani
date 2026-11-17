@@ -459,18 +459,23 @@ function mergeData(txt){let B;try{B=JSON.parse(txt)}catch(x){return'Soubor není
   S.loadAt=Date.now();S.bkN=cntRec(S.days);
   return'Převzato: '+add+' nových, '+upd+' aktualizovaných záznamů'+(rn.length?'; přečíslované zkoušky: '+rn.join(', '):'')}
 async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'.json',blob=new Blob([bakData()],{type:'application/json'});
-  if(mode==='sh'){try{const f=new File([blob],fn,{type:'application/json'}),f2=new File([blob],fn.replace(/\.json$/,'.txt'),{type:'text/plain'}),cs=q=>!!(navigator.canShare&&navigator.canShare({files:[q]})),g=cs(f)?f:cs(f2)?f2:null;if(g){await navigator.share({files:[g]});return}}catch(x){if(x&&x.name==='AbortError')return}}
+  if(mode==='sh'){const f=new File([blob],fn,{type:'application/json'}),f2=new File([blob],fn.replace(/\.json$/,'.txt'),{type:'text/plain'}),cs=q=>!!(navigator.canShare&&navigator.canShare({files:[q]})),g=cs(f)?f:cs(f2)?f2:null;if(g&&await shr([g]))return}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:fn,data:blob})}catch(x){if(!x||x.code!=='declined')toast('Záloha se nepodařila')}}
+async function shr(fs,ok){ok=ok||(()=>{});try{await navigator.share({files:fs});ok();return true}catch(x){if(x&&x.name==='AbortError')return true;if(x&&x.name==='NotAllowedError'){shareBtn(fs,ok);return true}}return false}
+function shareBtn(fs,ok){const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:20px';
+  o.innerHTML='<div style="background:#fff;color:#111;border-radius:14px;padding:20px;max-width:340px;width:100%;text-align:center;font:16px system-ui"><div style="margin-bottom:14px">Soubory jsou připravené. Klepni na tlačítko a vyber OneDrive.</div><button id="shb" style="width:100%;padding:14px;font-size:17px;border:0;border-radius:10px;background:#c8102e;color:#fff">Uložit / sdílet</button><div id="shx" style="margin-top:12px;color:#666;text-decoration:underline">Zavřít</div></div>';
+  document.body.appendChild(o);o.querySelector('#shx').onclick=()=>o.remove();
+  o.querySelector('#shb').onclick=async()=>{try{await navigator.share({files:fs});ok();o.remove()}catch(x){if(x&&x.name==='AbortError')return;o.remove();toast('Sdílení se nepodařilo')}}}
 async function sendAll(force){if(!force&&!loadedToday()){BW=true;tab='d';render();scrollTo(0,0);return}if(!force&&S.bkN&&cntRec(S.days)<S.bkN){BW='less';tab='d';render();scrollTo(0,0);return}BW=false;let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k odeslání');return}
   const xn='Zmetkovani_'+CUR+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
-  try{const X=new File([xb],xn,{type:xb.type}),J=new File([jb],jn,{type:'application/json'}),J2=new File([jb],jn.replace(/\.json$/,'.txt'),{type:'text/plain'}),cs=f=>!!(navigator.canShare&&navigator.canShare({files:f}));const fs=cs([X,J])?[X,J]:cs([X,J2])?[X,J2]:null;if(fs){await navigator.share({files:fs});S.bkN=cntRec(S.days);persist();return}}catch(x){if(x&&x.name==='AbortError')return}
+  try{const X=new File([xb],xn,{type:xb.type}),J=new File([jb],jn,{type:'application/json'}),J2=new File([jb],jn.replace(/\.json$/,'.txt'),{type:'text/plain'}),cs=f=>!!(navigator.canShare&&navigator.canShare({files:f}));const fs=cs([X,J])?[X,J]:cs([X,J2])?[X,J2]:null;if(fs&&await shr(fs,()=>{S.bkN=cntRec(S.days);persist()}))return}catch(x){}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:xn,data:new Blob([buf],{type:'application/octet-stream'})});await dl.save({filename:jn,data:jb});S.bkN=cntRec(S.days);persist()}catch(x){if(!x||x.code!=='declined')toast('Odeslání se nepodařilo')}}
 async function out(mode){if(user&&user.view&&!loadedToday()){BW='view';tab='d';render();scrollTo(0,0);return}let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k exportu');return}const fn='Zmetkovani_'+CUR+'_'+today()+'.xlsx';
-  if(mode==='sh'){try{const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(x){if(x&&x.name==='AbortError')return}}
+  if(mode==='sh'){const f=new File([buf],fn,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});if(navigator.canShare&&navigator.canShare({files:[f]})&&await shr([f]))return}
   const dl=await claude.use('downloads');if(!dl){toast('Stahování není dostupné');return}
   try{await dl.save({filename:fn,data:new Blob([buf],{type:'application/octet-stream'})})}catch(x){if(!x||x.code!=='declined')toast('Export se nepodařil')}}
 
