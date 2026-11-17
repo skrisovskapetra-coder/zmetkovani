@@ -464,9 +464,14 @@ async function bak(mode){const fn='Zaloha_zmetkovani_'+CUR+'.json',blob=new Blob
   try{await dl.save({filename:fn,data:blob})}catch(x){if(!x||x.code!=='declined')toast('Záloha se nepodařila')}}
 async function shr(fs,ok){ok=ok||(()=>{});try{await navigator.share({files:fs});ok();return true}catch(x){if(x&&x.name==='AbortError')return true;if(x&&x.name==='NotAllowedError'){shareBtn(fs,ok);return true}}return false}
 function shareBtn(fs,ok){const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:20px';
-  o.innerHTML='<div style="background:#fff;color:#111;border-radius:14px;padding:20px;max-width:340px;width:100%;text-align:center;font:16px system-ui"><div style="margin-bottom:14px">Soubory jsou připravené. Klepni na tlačítko a vyber OneDrive.</div><button id="shb" style="width:100%;padding:14px;font-size:17px;border:0;border-radius:10px;background:#c8102e;color:#fff">Uložit / sdílet</button><div id="shx" style="margin-top:12px;color:#666;text-decoration:underline">Zavřít</div></div>';
+  const B='width:100%;padding:13px;font-size:16px;border:0;border-radius:10px;color:#fff;margin-top:8px;';
+  o.innerHTML='<div style="background:#fff;color:#111;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:16px system-ui"><div style="margin-bottom:6px">Soubory jsou připravené. Klepni a vyber OneDrive nebo e-mail.</div>'+
+   '<button data-i="all" style="'+B+'background:#c8102e">Sdílet vše</button>'+fs.map((f,i)=>'<button data-i="'+i+'" style="'+B+'background:#555">Jen '+(/xlsx$/.test(f.name)?'Excel':'zálohu')+'</button>').join('')+
+   '<button data-i="dl" style="'+B+'background:#999">Stáhnout do mobilu</button><div id="shm" style="margin-top:10px;color:#b00;font-size:13px;min-height:16px"></div><div id="shx" style="margin-top:8px;color:#666;text-decoration:underline">Zavřít</div></div>';
   document.body.appendChild(o);o.querySelector('#shx').onclick=()=>o.remove();
-  o.querySelector('#shb').onclick=async()=>{try{await navigator.share({files:fs});ok();o.remove()}catch(x){if(x&&x.name==='AbortError')return;o.remove();toast('Sdílení se nepodařilo')}}}
+  o.querySelectorAll('button').forEach(b=>b.onclick=async()=>{const k=b.dataset.i,m=o.querySelector('#shm');
+    if(k==='dl'){try{const dl=await claude.use('downloads');for(const f of fs)await dl.save({filename:f.name,data:f});ok();o.remove()}catch(x){m.textContent='Stažení se nepodařilo'}return}
+    const sel=k==='all'?fs:[fs[+k]];try{await navigator.share({files:sel});ok();if(k==='all')o.remove()}catch(x){if(x&&x.name==='AbortError')return;m.textContent='Nepodařilo se: '+(x&&x.name||'')+' '+(x&&x.message||'')}})}
 async function sendAll(force){if(!force&&!loadedToday()){BW=true;tab='d';render();scrollTo(0,0);return}if(!force&&S.bkN&&cntRec(S.days)<S.bkN){BW='less';tab='d';render();scrollTo(0,0);return}BW=false;let buf;try{buf=await mk()}catch(x){toast('Export se nepodařil');return}
   if(!buf){toast('Nic k odeslání');return}
   const xn='Zmetkovani_'+CUR+'.xlsx',jn='Zaloha_zmetkovani_'+CUR+'.json',xb=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),jb=new Blob([bakData()],{type:'application/json'});
