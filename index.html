@@ -167,14 +167,15 @@ function viewDet(){const f=F,sel=(a,list,cur)=>list.map(v=>bt(a,v,v,'',cur===v))
   const mi=[];if(!f.nc&&f.z.size){if(!f.t.size&&!f.j.trim())mi.push('typ vady');if(!f.v)mi.push('jaderník válec');if(!f.s)mi.push('skořepina')}
   return h+`${ex&&canW()?`<div class="card" style="margin-top:10px"><div class="m">Spletla ses v čísle? Přesuň zápis na správné číslo (případně kolo).</div><div class="g" style="grid-template-columns:70px 1fr auto;margin-top:6px"><input type="text" id="mk" inputmode="numeric" maxlength="2" value="${f.k}" aria-label="kolo"><input type="text" id="mp" inputmode="numeric" maxlength="3" placeholder="nové číslo"><button class="b wr" data-a="mv">Přesunout</button></div><div class="m" style="margin-top:4px">kolo · nové pořadové číslo</div></div>`:''}${ex&&canW()?`<button class="sv s2" data-a="dl">${AR==='dl'?'Opravdu smazat? Klepni znovu':'Smazat tento záznam'}</button>`:''}<div class="stk"><div style="display:flex;gap:8px;align-items:center"><div class="mt" style="flex:1"></div><button class="sv" style="width:100%" data-a="sv">${ex?'Přepsat':'Uložit kus'}</button></div></div></main>`}
 
-const dkOf=r=>{const dk=[];r.t.forEach(i=>{if(nzT(i))dk.push(T[i]);else(r.z.length?r.z:['?']).forEach(z=>dk.push(T[i]+' · zóna '+z))});if(r.j)(r.z.length?r.z:['?']).forEach(z=>dk.push('jiné: '+String(r.j).trim().toLowerCase()+' · zóna '+z));if(!dk.length)r.z.forEach(z=>dk.push('bez typu · zóna '+z));return dk};
+const dkOf=r=>{const dk=r.t.map(i=>T[i]);if(r.j)dk.push('jiné: '+String(r.j).trim().toLowerCase());if(!dk.length)dk.push('bez určení vady');return dk.slice(0,1)};
+const vadyTxt=q=>q.ks.map(k=>{const L=q.keys.filter(x=>q.rows[x][k]).sort((a,b)=>q.rows[b][k]-q.rows[a][k]);return{k,s:q.sc[k],t:L.length?L.map(x=>q.rows[x][k]+' ks '+x).join(', '):'bez zmetků'}});
 function vadyData(d){const D=S.days[d],pl=PL(d),has={};Object.values(D.r).forEach(r=>{has[r.k]=1});const ks=D.k.map(k=>k.n).filter(k=>has[k]).sort((a,b)=>a-b),rows={},sc={},od={};
   for(const k of ks){sc[k]=0;od[k]=0;for(const p of pl){const r=D.r[k+'-'+p];if(r&&r.nc)continue;od[k]++;if(r&&isScrap(r)){sc[k]++;for(const x of dkOf(r)){const q=rows[x]=rows[x]||{};q[k]=(q[k]||0)+1}}}}
   const tot=x=>ks.reduce((s,k)=>s+(rows[x][k]||0),0),keys=Object.keys(rows).sort((a,b)=>tot(b)-tot(a)||a.localeCompare(b,'cs'));
   return{ks,rows,keys,sc,od,tot}}
 function vadyHtml(d){if(!S.days[d])return'';const q=vadyData(d);if(!q.ks.length)return'';
   const pc=(a,b)=>b?(100*a/b).toFixed(1).replace('.',',')+' %':'–',sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
-  return`<h2>Vady po kolech · ${fmt(d)}</h2><div class="card"><div class="m" style="margin-bottom:6px">Počet kusů s danou vadou v každém kole (zmetky včetně zkouškových). Kus s víc vadami se počítá u každé z nich, proto může být součet vad vyšší než počet zmetků.</div><div style="overflow-x:auto"><table><tr><th>vada</th>${q.ks.map(k=>'<th>kolo '+k+'</th>').join('')}<th>celkem</th></tr>${q.keys.length?q.keys.map(x=>'<tr><td>'+e(x)+'</td>'+q.ks.map(k=>'<td>'+(q.rows[x][k]||'')+'</td>').join('')+'<td><b>'+q.tot(x)+'</b></td></tr>').join(''):'<tr><td colspan="'+(q.ks.length+2)+'" class="m">žádné zmetky</td></tr>'}<tr><td><b>zmetků celkem (ks)</b></td>${q.ks.map(k=>'<td><b>'+q.sc[k]+'</b></td>').join('')}<td><b>${sa}</b></td></tr><tr><td>odlito (ks)</td>${q.ks.map(k=>'<td>'+q.od[k]+'</td>').join('')}<td>${oa}</td></tr><tr><td>% zmetků</td>${q.ks.map(k=>'<td>'+pc(q.sc[k],q.od[k])+'</td>').join('')}<td>${pc(sa,oa)}</td></tr></table></div></div>`}
+  return`<h2>Vady po kolech · ${fmt(d)}</h2><div class="card"><div class="m" style="margin-bottom:6px">Na co byl kus vyzmetkován, po kolech (včetně zkouškových kusů). Každý zmetek se počítá jen jednou – u vady, kterou zapisovatel zaškrtl jako první.</div><div style="overflow-x:auto"><table><tr><th>vada</th>${q.ks.map(k=>'<th>kolo '+k+'</th>').join('')}<th>celkem</th></tr>${q.keys.length?q.keys.map(x=>'<tr><td>'+e(x)+'</td>'+q.ks.map(k=>'<td>'+(q.rows[x][k]||'')+'</td>').join('')+'<td><b>'+q.tot(x)+'</b></td></tr>').join(''):'<tr><td colspan="'+(q.ks.length+2)+'" class="m">žádné zmetky</td></tr>'}<tr><td><b>zmetků celkem (ks)</b></td>${q.ks.map(k=>'<td><b>'+q.sc[k]+'</b></td>').join('')}<td><b>${sa}</b></td></tr><tr><td>odlito (ks)</td>${q.ks.map(k=>'<td>'+q.od[k]+'</td>').join('')}<td>${oa}</td></tr><tr><td>% zmetků</td>${q.ks.map(k=>'<td>'+pc(q.sc[k],q.od[k])+'</td>').join('')}<td>${pc(sa,oa)}</td></tr></table></div><div style="margin-top:8px"><b>Souhrn:</b>${vadyTxt(q).map(x=>'<div>Kolo '+x.k+' ('+x.s+' zmetků): '+e(x.t)+'</div>').join('')}</div></div>`}
 function stats(dates,ex){const o={odl:0,sc:0,kolo:{},z:{},t:{},v:{},s:{},c:{},zt:{},cd:{}};
   for(const dd of dates){const d=S.days[dd],pl=PL(dd);for(const kk of d.k){const ko=o.kolo[kk.n]=o.kolo[kk.n]||{o:0,s:0};
     for(const p of pl){const r=d.r[kk.n+'-'+p];
@@ -239,6 +240,7 @@ function viewP(){const ks=Object.keys(S.days).filter(k=>Object.keys(S.days[k].r)
   <div class="card"><div class="m">Jaderník válec – počet zmetků</div>${rateChart(o.v)}</div>
   <div class="card"><div class="m">Jaderník skořepina – počet zmetků</div>${rateChart(o.s)}</div>
   <div class="card"><div class="m">Kombinace válec + skořepina – počet zmetků</div>${rateChart(o.c,10)}${Object.keys(o.c).length>10?`<details><summary class="m">Dalších ${Object.keys(o.c).length-10} kombinací</summary>${rateChart(o.c,999,10)}</details>`:''}</div>
+  ${sd.map(vadyHtml).join('')}
   <h2>Podle kola lití</h2><div class="card">${kr.length?'<table><tr><th>kolo</th><th>zmetků</th><th>odlito</th><th>%</th><th>k prodeji</th></tr>'+kr.map(k=>`<tr><td>${k}</td><td>${o.kolo[k].s}</td><td>${o.kolo[k].o}</td><td><b>${pc(o.kolo[k].s,o.kolo[k].o)}</b></td><td>${o.kolo[k].o-o.kolo[k].s}</td></tr>`).join('')+'</table>':'<div class="m">Zatím žádná data.</div>'}</div>
   <h2>Podrobně – zóny a typy vad</h2>
   <div class="card"><div class="m">Pareto – zóny vad</div>${svgPareto(o.z)}<details><summary class="m">Tabulka</summary>${pareto(o.z)}</details></div>
@@ -422,7 +424,7 @@ async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[
       R.push([{v:i===0?kk.n:'',s:11},{v:p,s:11},...Z.map(z=>xm(r&&r.z.includes(z))),...T.map((t,x)=>xm(r&&r.t.includes(x))),X(r?r.j:''),xm(r&&r.ns),{v:r&&r.v||'',s:11},{v:r&&r.s||'',s:11},xm(r&&r.nc),X(r&&r.te||'')])});
     sheets.push({name:fmt(d).slice(0,5)+'.'+d.slice(0,4),rows:R,cols:[7,8,...Z.map(()=>5),...T.map(()=>14),14,12,10,12,9,10],freeze:4})}
   /* ---------- vady po kolech ---------- */
-  {const R=[[{v:ttl+' – VADY PO KOLECH ('+scope+' tabulka zahrnuje i zkouškové kusy)',s:2}],[]];let mc=2,any=false;
+  {const R=[[{v:ttl+' – VADY PO KOLECH (včetně zkouškových kusů)',s:2}],[]];let mc=2,any=false;
    for(const d of days){const q=vadyData(d);if(!q.ks.length)continue;any=true;mc=Math.max(mc,q.ks.length+2);
     R.push([{v:'Datum lití:',s:10},{v:fmt(d),s:10}]);
     R.push([H('Vada'),...q.ks.map(k=>H('kolo '+k)),H('celkem')]);
@@ -430,7 +432,7 @@ async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[
     const sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
     R.push([H('zmetků celkem (ks)'),...q.ks.map(k=>N(q.sc[k])),N(sa)]);
     R.push([X('odlito (ks)'),...q.ks.map(k=>N(q.od[k])),N(oa)]);
-    R.push([X('% zmetků'),...q.ks.map(k=>P(pr(q.sc[k],q.od[k]))),P(pr(sa,oa))]);R.push([])}
+    R.push([X('% zmetků'),...q.ks.map(k=>P(pr(q.sc[k],q.od[k]))),P(pr(sa,oa))]);vadyTxt(q).forEach(x=>R.push([X('Kolo '+x.k+' ('+x.s+' zmetků): '+x.t)]));R.push([])}
    if(!any)R.push([X('Zatím žádné zápisy.')]);
    sheets.splice(1,0,{name:'Vady po kolech',rows:R,cols:[34,...Array(Math.max(mc,8)).fill(10)]})}
   /* ---------- zkoušky ---------- */
