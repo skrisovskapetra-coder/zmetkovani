@@ -174,8 +174,8 @@ function vadyData(d){const D=S.days[d],pl=PL(d),has={};Object.values(D.r).forEac
   const tot=x=>ks.reduce((s,k)=>s+(rows[x][k]||0),0),keys=Object.keys(rows).sort((a,b)=>tot(b)-tot(a)||a.localeCompare(b,'cs'));
   return{ks,rows,keys,sc,od,tot}}
 function vadyHtml(d){if(!S.days[d])return'';const q=vadyData(d);if(!q.ks.length)return'';
-  const pc=(a,b)=>b?(100*a/b).toFixed(1).replace('.',',')+' %':'–',sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
-  return`<h2>Vady po kolech · ${fmt(d)}</h2><div class="card"><div class="m" style="margin-bottom:6px">Na co byl kus vyzmetkován, po kolech (včetně zkouškových kusů). Každý zmetek se počítá jen jednou – u vady, kterou zapisovatel zaškrtl jako první.</div><div style="overflow-x:auto"><table><tr><th>vada</th>${q.ks.map(k=>'<th>kolo '+k+'</th>').join('')}<th>celkem</th></tr>${q.keys.length?q.keys.map(x=>'<tr><td>'+e(x)+'</td>'+q.ks.map(k=>'<td>'+(q.rows[x][k]||'')+'</td>').join('')+'<td><b>'+q.tot(x)+'</b></td></tr>').join(''):'<tr><td colspan="'+(q.ks.length+2)+'" class="m">žádné zmetky</td></tr>'}<tr><td><b>zmetků celkem (ks)</b></td>${q.ks.map(k=>'<td><b>'+q.sc[k]+'</b></td>').join('')}<td><b>${sa}</b></td></tr></table></div><div style="margin-top:8px"><b>Souhrn:</b>${vadyTxt(q).map(x=>'<div>Kolo '+x.k+' ('+x.s+' zmetků): '+e(x.t)+'</div>').join('')}</div></div>`}
+  const sa=q.ks.reduce((s,k)=>s+q.sc[k],0);
+  return`<h2>Vady po kolech · ${fmt(d)}</h2><div class="card"><div class="m" style="margin-bottom:6px">Na co byl kus vyzmetkován, po kolech (včetně zkouškových kusů). Každý zmetek se počítá jen jednou – u vady, kterou zapisovatel zaškrtl jako první.</div><div style="overflow-x:auto"><table style="font-size:13px"><tr><th>kolo</th>${q.keys.map(x=>'<th style="font-size:11px;white-space:normal">'+e(x)+'</th>').join('')}<th>zmetků</th></tr>${q.ks.map(k=>'<tr><td><b>'+k+'</b></td>'+q.keys.map(x=>'<td>'+(q.rows[x][k]||'')+'</td>').join('')+'<td><b>'+q.sc[k]+'</b></td></tr>').join('')}<tr><td><b>celkem</b></td>${q.keys.map(x=>'<td><b>'+q.tot(x)+'</b></td>').join('')}<td><b>${sa}</b></td></tr></table></div></div>`}
 function stats(dates,ex){const o={odl:0,sc:0,kolo:{},z:{},t:{},v:{},s:{},c:{},zt:{},cd:{}};
   for(const dd of dates){const d=S.days[dd],pl=PL(dd);for(const kk of d.k){const ko=o.kolo[kk.n]=o.kolo[kk.n]||{o:0,s:0};
     for(const p of pl){const r=d.r[kk.n+'-'+p];
@@ -421,16 +421,14 @@ async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[
     sheets.push({name:fmt(d).slice(0,5)+'.'+d.slice(0,4),rows:R,cols:[7,8,...Z.map(()=>5),...T.map(()=>14),14,12,10,12,9,10],freeze:4})}
   /* ---------- vady po kolech ---------- */
   {const R=[[{v:ttl+' – VADY PO KOLECH (včetně zkouškových kusů)',s:2}],[]];let mc=2,any=false;
-   for(const d of days){const q=vadyData(d);if(!q.ks.length)continue;any=true;mc=Math.max(mc,q.ks.length+2);
+   for(const d of days){const q=vadyData(d);if(!q.ks.length)continue;any=true;mc=Math.max(mc,q.keys.length+2);
     R.push([{v:'Datum lití:',s:10},{v:fmt(d),s:10}]);
-    R.push([H('Vada'),...q.ks.map(k=>H('kolo '+k)),H('celkem')]);
-    q.keys.forEach(x=>R.push([X(x),...q.ks.map(k=>N(q.rows[x][k]||'')),N(q.tot(x))]));
-    const sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
-    R.push([H('zmetků celkem (ks)'),...q.ks.map(k=>N(q.sc[k])),N(sa)]);
-    R.push([X('odlito (ks)'),...q.ks.map(k=>N(q.od[k])),N(oa)]);
-    R.push([X('% zmetků'),...q.ks.map(k=>P(pr(q.sc[k],q.od[k]))),P(pr(sa,oa))]);vadyTxt(q).forEach(x=>R.push([X('Kolo '+x.k+' ('+x.s+' zmetků): '+x.t)]));R.push([])}
+    R.push([H('Kolo'),...q.keys.map(H),H('zmetků')]);
+    q.ks.forEach(k=>R.push([N(k),...q.keys.map(x=>N(q.rows[x][k]||'')),N(q.sc[k])]));
+    R.push([H('celkem'),...q.keys.map(x=>N(q.tot(x))),N(q.ks.reduce((s,k)=>s+q.sc[k],0))]);
+    R.push([])}
    if(!any)R.push([X('Zatím žádné zápisy.')]);
-   sheets.splice(1,0,{name:'Vady po kolech',rows:R,cols:[34,...Array(Math.max(mc,8)).fill(10)]})}
+   sheets.splice(1,0,{name:'Vady po kolech',rows:R,cols:[12,...Array(Math.max(mc,8)).fill(14)]})}
   /* ---------- zkoušky ---------- */
   if(S.tests.length){const R=[[{v:ttl+' – ZKOUŠKY',s:2}],[note('Zkouškové kusy zůstávají v sérii; zde jsou vyhodnoceny zvlášť (OK = kus bez zmetku)')],[],[H('Zkouška'),H('Název'),H('Datum'),H('Popis'),H('Kusů celkem'),H('OK kusů'),H('NOK kusů'),H('% NOK')]],rec={};
     for(const d of Object.keys(S.days))for(const r of Object.values(S.days[d].r))if(r.te){const q=rec[r.te]=rec[r.te]||{n:0,k:0};q.n++;if(isScrap(r))q.k++}
