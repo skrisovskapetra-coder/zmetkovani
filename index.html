@@ -30,7 +30,6 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:5px 4px;b
 .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
 .tg{display:block;font-size:9px;line-height:9px;font-weight:600}
 [hidden]{display:none!important}
-input[type=date]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;max-width:100%;min-width:0}
 input[type=password]{width:100%;min-height:44px;border:2px solid var(--ln);border-radius:10px;background:var(--card);padding:6px 10px}
 .lg{max-width:420px;margin:0 auto;padding:48px 24px 40px}
 .bdg{width:80px;height:80px;border-radius:20px;background:#1f4e8c;color:#fff;font-weight:800;font-size:32px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
@@ -86,7 +85,7 @@ const lgOk=()=>{const sp=!S.people.some(p=>p.pin);return sp?(LF.name.trim().leng
 const PL=d=>{let l=rng(NP);for(const h of S.hist.slice().sort((a,b)=>a.from<b.from?-1:a.from>b.from?1:0))if(h.from<=d)l=h.p;return l};
 const setPL=(d,l)=>{S.hist=S.hist.filter(h=>h.from!==d);S.hist.push({from:d,p:l})};
 const dayD=d=>S.days[d]||(S.days[d]={k:rng(5).map(n=>({n})),r:{}});
-let BP=null,BPC=false,BW=false;let F=null,KS=null,tab='z',scr='login',pf='all',XT=false,EM=false,AR=null,AT=null,EK=null,NT=false,KN={name:'',date:today(),note:''};
+let MVD={a:'',b:'',k:''};let BP=null,BPC=false,BW=false;let F=null,KS=null,tab='z',scr='login',pf='all',XT=false,EM=false,AR=null,AT=null,EK=null,NT=false,KN={name:'',date:today(),note:''};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),1500)};
 const ask=k=>{if(AR===k){AR=null;return false}AR=k;render();setTimeout(()=>{if(AR===k){AR=null;render()}},3500);return true};
 const isScrap=r=>!r.nc&&!r.ns&&(r.z.length||r.t.length||r.j);
@@ -139,11 +138,15 @@ function viewZ(){const D=dayD(S.d),ko=D.k.find(x=>x.n===KS),cur=PL(S.d);if(!ko)K
     h+=`<h2>Čísla forem – trvalá změna</h2><div class="m">Platí od ${fmt(S.d)} dál. Dřívější dny zůstanou, jak byly. Klepnutím číslo vyřadíš (nepočítá se z něj nic), dalším klepnutím vrátíš.</div>
     <div class="g c7" style="margin-top:6px">${rng(mx).map(n=>cur.includes(n)?`<button class="b p g2" data-a="tp" data-v="${n}">${AR==='tp'+n?'?':n}</button>`:`<button class="b p x" style="text-decoration:line-through;opacity:.7" data-a="tp" data-v="${n}">${n}</button>`).join('')}</div>
     <div class="g" style="grid-template-columns:1fr auto;margin-top:8px"><input type="text" id="np" inputmode="numeric" placeholder="nové číslo formy (např. ${mx+1})"><button class="b" data-a="ap">Přidat číslo</button></div>
-    <div class="m" style="margin-top:6px">Aktuálně platných čísel: ${cur.length}</div>`}
+    <div class="m" style="margin-top:6px">Aktuálně platných čísel: ${cur.length}</div>
+    <h2>Oprava data</h2><div class="m">Spletla ses v datu? Zápisy se přesunou na správné datum, nic se nemaže. Jde to jen na datum, kde ještě nejsou zápisy (u kola nesmí mít kolo se stejným číslem zápisy).</div>
+    <div class="card" style="margin-top:6px"><b>Celý den ${fmt(S.d)}</b><div class="g" style="grid-template-columns:1fr auto;margin-top:6px"><input type="date" id="dd1" value="${MVD.a||S.d}"><button class="b wr" data-a="md">${AR==='md'?'Opravdu? Klepni znovu':'Přesunout den'}</button></div></div>
+    <div class="card" style="margin-top:6px"><b>Jen jedno kolo dne ${fmt(S.d)}</b><div class="g" style="grid-template-columns:90px 1fr auto;margin-top:6px"><input type="text" id="kk" inputmode="numeric" maxlength="2" placeholder="kolo" value="${MVD.k||(KS||'')}"><input type="date" id="dd2" value="${MVD.b||S.d}"><button class="b wr" data-a="mq">${AR==='mq'?'Opravdu? Klepni znovu':'Přesunout kolo'}</button></div></div>`}
   else if(ko){h+=`<h2>2 · Pořadové číslo (kolo ${ko.n})</h2><div class="g c7">${rng(Math.max(NP,...cur,...S.hist.flatMap(x=>x.p))).map(n=>{if(!cur.includes(n))return`<button class="b p x" style="text-decoration:line-through;opacity:.45" data-a="px" data-v="${n}">${n}</button>`;const r=D.r[ko.n+'-'+n],c=r?(r.te?(isScrap(r)?'zt':(r.ns||r.z.length||r.t.length||r.j)?'zt zn':'zt zp'):r.nc?'x':r.ns?'n':isScrap(r)?'d':'g2'):'';
     return`<button class="b p ${c}" data-a="p" data-v="${n}">${n}${r&&r.te?'<span class="tg">'+e(r.te)+'</span>':''}</button>`}).join('')}</div>
     <div class="m">červeně zmetek · oranžově vada, ale není zmetek · šedě neodlito · fialově zkouška · zeleně dobrý kus · přeškrtnuté = vyřazené číslo formy</div>`}
   else h+='<div class="m" style="margin-top:10px">Nejdřív vyber kolo lití, pak se zobrazí pořadová čísla.</div>';
+  if(!EM)h+=vadyHtml(S.d);
   return h}
 
 function viewDet(){const f=F,sel=(a,list,cur)=>list.map(v=>bt(a,v,v,'',cur===v)).join('');
@@ -158,12 +161,20 @@ function viewDet(){const f=F,sel=(a,list,cur)=>list.map(v=>bt(a,v,v,'',cur===v))
     const tzl=f.newT?'Nová zkouška':f.te?f.te+' ✓':'Zkouška…';
     h+=`<div class="g c2" style="margin-top:8px">${bt('ns',1,'Vada, NENÍ zmetek','wr',f.ns)}${bt('tzp',1,tzl,'te',!!(f.te||f.newT||f.tzp))}</div>`;
     if(f.tzp||f.newT)h+=`<h2>Zkouška</h2><div class="g">${bt('tz','','Není zkouška','',!f.te&&!f.newT)}${S.tests.filter(t=>!t.done||f.te===t.id).map(t=>'<div class="g" style="grid-template-columns:1fr auto">'+bt('tz',t.id,e(t.id+' · '+t.name),'te',f.te===t.id)+(t.done?'<span class="m" style="align-self:center;padding:0 8px">hotová ✓</span>':bt('kv',t.id,'✓ hotová','ok',0))+'</div>').join('')}${bt('tn0',1,'+ Nová zkouška','te',f.newT)}</div>`;
-    if(f.newT)h+=`<div class="m" style="margin-top:6px">Označení (zk${freeTn()}) a datum ${fmt(S.d)} se doplní samo.</div><div style="margin-top:6px"><input type="text" data-f="tnn" value="${e(f.tnn)}" placeholder="název zkoušky (např. odfuk z jader)"></div><div style="margin-top:6px"><textarea data-f="tnt" rows="2" placeholder="popis zkoušky (nepovinné)">${e(f.tnt)}</textarea></div>`;
+    if(f.newT)h+=`<div class="m" style="margin-top:6px">Označení (zk${S.tc+1}) a datum ${fmt(S.d)} se doplní samo.</div><div style="margin-top:6px"><input type="text" data-f="tnn" value="${e(f.tnn)}" placeholder="název zkoušky (např. odfuk z jader)"></div><div style="margin-top:6px"><textarea data-f="tnt" rows="2" placeholder="popis zkoušky (nepovinné)">${e(f.tnt)}</textarea></div>`;
     if(f.tzp||f.newT)h+=`<div style="margin-top:6px"><textarea data-f="no" rows="3" placeholder="poznámka k tomuto kusu – podrobnosti o zmetku">${e(f.no)}</textarea></div>`}
   const ex=dayD(S.d).r[f.k+'-'+f.p];
   const mi=[];if(!f.nc&&f.z.size){if(!f.t.size&&!f.j.trim())mi.push('typ vady');if(!f.v)mi.push('jaderník válec');if(!f.s)mi.push('skořepina')}
-  return h+`${ex&&canDel()?`<button class="sv s2" data-a="dl">${AR==='dl'?'Opravdu smazat? Klepni znovu':'Smazat tento záznam'}</button>`:''}<div class="stk"><div style="display:flex;gap:8px;align-items:center"><div class="mt" style="flex:1"></div><button class="sv" style="width:100%" data-a="sv">${ex?'Přepsat':'Uložit kus'}</button></div></div></main>`}
+  return h+`${ex&&canW()?`<div class="card" style="margin-top:10px"><div class="m">Spletla ses v čísle? Přesuň zápis na správné číslo (případně kolo).</div><div class="g" style="grid-template-columns:70px 1fr auto;margin-top:6px"><input type="text" id="mk" inputmode="numeric" maxlength="2" value="${f.k}" aria-label="kolo"><input type="text" id="mp" inputmode="numeric" maxlength="3" placeholder="nové číslo"><button class="b wr" data-a="mv">Přesunout</button></div><div class="m" style="margin-top:4px">kolo · nové pořadové číslo</div></div>`:''}${ex&&canW()?`<button class="sv s2" data-a="dl">${AR==='dl'?'Opravdu smazat? Klepni znovu':'Smazat tento záznam'}</button>`:''}<div class="stk"><div style="display:flex;gap:8px;align-items:center"><div class="mt" style="flex:1"></div><button class="sv" style="width:100%" data-a="sv">${ex?'Přepsat':'Uložit kus'}</button></div></div></main>`}
 
+const dkOf=r=>{const dk=[];r.t.forEach(i=>{if(nzT(i))dk.push(T[i]);else(r.z.length?r.z:['?']).forEach(z=>dk.push(T[i]+' · zóna '+z))});if(r.j)(r.z.length?r.z:['?']).forEach(z=>dk.push('jiné: '+String(r.j).trim().toLowerCase()+' · zóna '+z));if(!dk.length)r.z.forEach(z=>dk.push('bez typu · zóna '+z));return dk};
+function vadyData(d){const D=S.days[d],pl=PL(d),has={};Object.values(D.r).forEach(r=>{has[r.k]=1});const ks=D.k.map(k=>k.n).filter(k=>has[k]).sort((a,b)=>a-b),rows={},sc={},od={};
+  for(const k of ks){sc[k]=0;od[k]=0;for(const p of pl){const r=D.r[k+'-'+p];if(r&&r.nc)continue;od[k]++;if(r&&isScrap(r)){sc[k]++;for(const x of dkOf(r)){const q=rows[x]=rows[x]||{};q[k]=(q[k]||0)+1}}}}
+  const tot=x=>ks.reduce((s,k)=>s+(rows[x][k]||0),0),keys=Object.keys(rows).sort((a,b)=>tot(b)-tot(a)||a.localeCompare(b,'cs'));
+  return{ks,rows,keys,sc,od,tot}}
+function vadyHtml(d){if(!S.days[d])return'';const q=vadyData(d);if(!q.ks.length)return'';
+  const pc=(a,b)=>b?(100*a/b).toFixed(1).replace('.',',')+' %':'–',sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
+  return`<h2>Vady po kolech · ${fmt(d)}</h2><div class="card"><div class="m" style="margin-bottom:6px">Počet kusů s danou vadou v každém kole (zmetky včetně zkouškových). Kus s víc vadami se počítá u každé z nich, proto může být součet vad vyšší než počet zmetků.</div><div style="overflow-x:auto"><table><tr><th>vada</th>${q.ks.map(k=>'<th>kolo '+k+'</th>').join('')}<th>celkem</th></tr>${q.keys.length?q.keys.map(x=>'<tr><td>'+e(x)+'</td>'+q.ks.map(k=>'<td>'+(q.rows[x][k]||'')+'</td>').join('')+'<td><b>'+q.tot(x)+'</b></td></tr>').join(''):'<tr><td colspan="'+(q.ks.length+2)+'" class="m">žádné zmetky</td></tr>'}<tr><td><b>zmetků celkem (ks)</b></td>${q.ks.map(k=>'<td><b>'+q.sc[k]+'</b></td>').join('')}<td><b>${sa}</b></td></tr><tr><td>odlito (ks)</td>${q.ks.map(k=>'<td>'+q.od[k]+'</td>').join('')}<td>${oa}</td></tr><tr><td>% zmetků</td>${q.ks.map(k=>'<td>'+pc(q.sc[k],q.od[k])+'</td>').join('')}<td>${pc(sa,oa)}</td></tr></table></div></div>`}
 function stats(dates,ex){const o={odl:0,sc:0,kolo:{},z:{},t:{},v:{},s:{},c:{},zt:{},cd:{}};
   for(const dd of dates){const d=S.days[dd],pl=PL(dd);for(const kk of d.k){const ko=o.kolo[kk.n]=o.kolo[kk.n]||{o:0,s:0};
     for(const p of pl){const r=d.r[kk.n+'-'+p];
@@ -239,7 +250,7 @@ function viewP(){const ks=Object.keys(S.days).filter(k=>Object.keys(S.days[k].r)
 function testChart(){const L=S.tests.map(t=>({t,s:tstat(t.id)})).filter(x=>x.s.n);if(!L.length)return'';const mx=Math.max(...L.map(x=>x.s.n?x.s.s/x.s.n:0))||1;
   return`<div class="card"><div class="m">Zmetkovitost zkoušek – % NOK (zmetky / kusy zkoušky)</div>${L.map(({t,s})=>{const v=s.n?s.s/s.n:0;return`<div class="rw"><div class="rt"><span>${e(t.id+' · '+t.name)}</span><b>${pc(s.s,s.n)} (${s.s}/${s.n})</b></div><div class="rb"><i style="width:${Math.max(4,100*v/mx)}%;background:var(--te)"></i></div></div>`}).join('')}</div>`}
 function viewK(){
-  let h=!canW()?'':`<h2>Nová zkouška</h2><div class="card"><input type="text" data-kf="name" value="${e(KN.name)}" placeholder="název (např. odfuk z jader)"><input type="date" data-kf="date" value="${KN.date}" style="margin-top:6px"><textarea data-kf="note" rows="2" placeholder="podrobnější popis (nepovinné)" style="margin-top:6px">${e(KN.note)}</textarea><button class="sv" data-a="kc">Vytvořit zkoušku (označení zk${freeTn()} se doplní samo)</button></div>`;
+  let h=!canW()?'':`<h2>Nová zkouška</h2><div class="card"><input type="text" data-kf="name" value="${e(KN.name)}" placeholder="název (např. odfuk z jader)"><input type="date" data-kf="date" value="${KN.date}" style="margin-top:6px"><textarea data-kf="note" rows="2" placeholder="podrobnější popis (nepovinné)" style="margin-top:6px">${e(KN.note)}</textarea><button class="sv" data-a="kc">Vytvořit zkoušku (označení zk${S.tc+1} se doplní samo)</button></div>`;
   if(!S.tests.length)return h+'<div class="m">Zatím žádná zkouška. Po vytvoření klepni na „Označit kusy“ a v Zápisu klepáním přiřaď čísla ke zkoušce.</div>';
   const card=t=>{const s=tstat(t.id),ed=EK===t.id;if(!OP(t))return`<div class="card"><div class="row" data-a="kx" data-v="${t.id}" style="cursor:pointer"><b>▸ ${e(t.id)} · ${e(t.name)}${t.done?' ✓':''}</b><span class="m">${fmt(t.date)}</span></div><div class="m">kusů ${s.n} · OK ${s.ok} · NOK ${s.s} · ${pc(s.s,s.n)}</div></div>`;
     return`<div class="card"><div class="row" data-a="kx" data-v="${t.id}" style="cursor:pointer"><b>▾ ${e(t.id)} · ${e(t.name)}${t.done?' ✓':''}</b><span class="m">${fmt(t.date)}</span></div>${t.note?`<div class="m">${e(t.note)}</div>`:''}
@@ -263,6 +274,7 @@ function render(){applyCfg();const ov=$('#ov');
   if(F&&F.open){ov.hidden=false;ov.innerHTML=viewDet()}else{ov.hidden=true;ov.innerHTML=''}
   const bf=$('#bf');if(bf)bf.onchange=()=>{const f=bf.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const px=bkPrep(String(rd.result));if(px.err){toast(px.err)}else{BP={...px,name:f.name};BPC=false;BW=false;render();scrollTo(0,0)}bf.value=''};rd.readAsText(f)};
   const bu=$('#bfu');if(bu)bu.onchange=()=>{const f=bu.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{toast(importUsers(String(rd.result)));bu.value='';render()};rd.readAsText(f)};
+  [['#dd1','a'],['#dd2','b'],['#kk','k']].forEach(([s,k])=>{const x=$(s);if(x)x.oninput=x.onchange=()=>{MVD[k]=x.value}});
   const dt=$('#dt');if(dt)dt.onchange=()=>{if(dt.value){S.d=dt.value;KS=null;render()}};
   const pe=$('#pf');if(pe)pe.onchange=()=>{pf=pe.value;render()};
   const wp=$('#wp');if(wp)wp.oninput=()=>{$('#wb').disabled=wp.value.trim().toUpperCase()!=='SMAZAT'}}
@@ -409,6 +421,18 @@ async function mk(){const days=Object.keys(S.days).filter(k=>Object.keys(S.days[
       if(r&&r.te){const t=tById(r.te);tp.push([X(r.te),X(t?t.name:''),X(fmt(d)),N(kk.n),N(p),X(r.z.join(' ')),X(r.t.map(x=>T[x]).join(', ')),X(r.j||''),X(isScrap(r)?'NOK':'OK'),N(r.v||''),N(r.s||''),X(r.no||''),X(r.by||'')])}
       R.push([{v:i===0?kk.n:'',s:11},{v:p,s:11},...Z.map(z=>xm(r&&r.z.includes(z))),...T.map((t,x)=>xm(r&&r.t.includes(x))),X(r?r.j:''),xm(r&&r.ns),{v:r&&r.v||'',s:11},{v:r&&r.s||'',s:11},xm(r&&r.nc),X(r&&r.te||'')])});
     sheets.push({name:fmt(d).slice(0,5)+'.'+d.slice(0,4),rows:R,cols:[7,8,...Z.map(()=>5),...T.map(()=>14),14,12,10,12,9,10],freeze:4})}
+  /* ---------- vady po kolech ---------- */
+  {const R=[[{v:ttl+' – VADY PO KOLECH ('+scope+' tabulka zahrnuje i zkouškové kusy)',s:2}],[]];let mc=2,any=false;
+   for(const d of days){const q=vadyData(d);if(!q.ks.length)continue;any=true;mc=Math.max(mc,q.ks.length+2);
+    R.push([{v:'Datum lití:',s:10},{v:fmt(d),s:10}]);
+    R.push([H('Vada'),...q.ks.map(k=>H('kolo '+k)),H('celkem')]);
+    q.keys.forEach(x=>R.push([X(x),...q.ks.map(k=>N(q.rows[x][k]||'')),N(q.tot(x))]));
+    const sa=q.ks.reduce((s,k)=>s+q.sc[k],0),oa=q.ks.reduce((s,k)=>s+q.od[k],0);
+    R.push([H('zmetků celkem (ks)'),...q.ks.map(k=>N(q.sc[k])),N(sa)]);
+    R.push([X('odlito (ks)'),...q.ks.map(k=>N(q.od[k])),N(oa)]);
+    R.push([X('% zmetků'),...q.ks.map(k=>P(pr(q.sc[k],q.od[k]))),P(pr(sa,oa))]);R.push([])}
+   if(!any)R.push([X('Zatím žádné zápisy.')]);
+   sheets.splice(1,0,{name:'Vady po kolech',rows:R,cols:[34,...Array(Math.max(mc,8)).fill(10)]})}
   /* ---------- zkoušky ---------- */
   if(S.tests.length){const R=[[{v:ttl+' – ZKOUŠKY',s:2}],[note('Zkouškové kusy zůstávají v sérii; zde jsou vyhodnoceny zvlášť (OK = kus bez zmetku)')],[],[H('Zkouška'),H('Název'),H('Datum'),H('Popis'),H('Kusů celkem'),H('OK kusů'),H('NOK kusů'),H('% NOK')]],rec={};
     for(const d of Object.keys(S.days))for(const r of Object.values(S.days[d].r))if(r.te){const q=rec[r.te]=rec[r.te]||{n:0,k:0};q.n++;if(isScrap(r))q.k++}
@@ -443,10 +467,6 @@ function pend(){let h='';
   if(BP){const x=BP;h+=`<div class="card" style="border:2px solid var(--ac)"><b>Záloha ${e(x.name)}</b><div class="m" style="margin:4px 0 8px">Záloha obsahuje ${x.nb} záznamů, v telefonu je ${x.nl}.${x.lost?` <b>V telefonu je ${x.lost} záznamů, které v záloze nejsou nebo jsou novější</b> – po nahrazení by se ztratily. Nejdřív je odešli, nebo zvol Spojit.`:' Žádný záznam z telefonu se nahrazením neztratí.'}</div><button class="sv" data-a="bpr">${BPC?'Opravdu nahradit? Klepni znovu':'Nahradit data v telefonu zálohou'}</button>${user&&user.view?'':'<button class="sv s2" data-a="bpm">Spojit se zálohou</button>'}<button class="sv s2" data-a="bpx">Zrušit</button></div>`}
   if(BW)h+=`<div class="card" style="border:2px solid var(--wr)"><b>${BW==='view'?'Nejdřív načti aktuální zálohu':BW==='less'?'V telefonu je méně záznamů než po načtení zálohy':'Dnes nebyla načtena záloha'}</b><div class="m" style="margin:4px 0 8px">${BW==='view'?'Excel obsahuje data z telefonu. Aby byl aktuální, načti nejdřív poslední zálohu ze složky OneDrivu.':BW==='less'?'Po posledním načtení nebo odeslání se něco smazalo ('+cntRec(S.days)+' záznamů místo '+S.bkN+'). Pokud to nebylo schválně, nic neodesílej a vrať data tlačítkem Vrátit zpět nebo načti zálohu ze složky.':'Pokud mezitím zapisoval někdo jiný, odesláním přepíšeš jeho data ve složce. Nejdřív načti zálohu ze složky. Odeslat bez načtení má smysl jen poprvé, kdy ve složce ještě žádná záloha není.'}</div><button class="sv" data-a="bl">Načíst zálohu ze souboru</button>${BW==='view'?'':'<button class="sv s2" data-a="sa2">Odeslat i tak</button>'}<button class="sv s2" data-a="bwx">Zrušit</button></div>`;
   return h}
-/* nejnižší volné označení zkoušky – po smazání zk2 dostane další zkouška znovu zk2 */
-function freeTn(){let n=1;while(S.tests.some(t=>t.id==='zk'+n))n++;return n}
-function sortT(){S.tests.sort((a,b)=>(+String(a.id).slice(2)||0)-(+String(b.id).slice(2)||0))}
-function newTid(){const n=freeTn();S.tc=Math.max(S.tc||0,n);return'zk'+n}
 function mergeData(txt){let B;try{B=JSON.parse(txt)}catch(x){return'Soubor není záloha aplikace'}
   if(!B||B.app!=='zm029'||typeof B.days!=='object')return'Soubor není záloha aplikace';
   if((B.cast||'029')!==CUR)return'Záloha je pro odlitek '+(B.cast||'029')+', ale otevřený je '+CUR+'. Přepni odlitek a načti ji znovu.';
@@ -551,13 +571,33 @@ document.addEventListener('click',e2=>{
   else if(a==='tn0'){F.newT=F.newT?0:1;if(F.newT){F.te='';SC='bottom'}}
   else if(a==='sv'){if(!(F.nc||F.z.size||F.t.size||F.j.trim()||F.te||F.newT||F.v||F.s)){toast('Vyber zónu vady, typ nebo napiš „jiné“, zkoušku, jádro nebo „Forma se neodlila“');return}
     let te=F.nc?'':F.te;
-    if(!F.nc&&F.newT){if(!F.tnn.trim()){toast('Napiš název nové zkoušky');return}const t={id:newTid(),name:F.tnn.trim(),date:S.d,note:F.tnt.trim()};S.tests.push(t);sortT();te=t.id}
+    if(!F.nc&&F.newT){if(!F.tnn.trim()){toast('Napiš název nové zkoušky');return}const t={id:'zk'+(++S.tc),name:F.tnn.trim(),date:S.d,note:F.tnt.trim()};S.tests.push(t);te=t.id}
     const d=dayD(S.d),off=F.nc||F.good;d.r[F.k+'-'+F.p]={k:F.k,p:F.p,z:off||([...F.t].length&&!F.j.trim()&&[...F.t].every(nzT))?[]:[...F.z],t:off?[]:[...F.t],j:off?'':F.j.trim(),ns:F.ns,nc:F.nc,v:F.nc?null:F.v,s:F.nc?null:F.s,te,no:te?F.no.trim():'',ev:1,by:ppl()?ppl().name:'',ts:Date.now()};
     S.draft=null;F=null;toast(te?'Uloženo ✓ ('+te+')':'Uloženo ✓')}
-  else if(a==='dl'){if(!canDel()){noDel();return}if(ask('dl'))return;snap('smazání záznamu kusu');S.draft=null;delete dayD(S.d).r[F.k+'-'+F.p];F=null;toast('Smazáno')}
-  else if(a==='kc'){if(!KN.name.trim()){toast('Napiš název zkoušky');return}S.tests.push({id:newTid(),name:KN.name.trim(),date:KN.date||today(),note:KN.note.trim()});sortT();KN={name:'',date:today(),note:''};toast('Zkouška vytvořena')}
+  else if(a==='dl'){if(!canW()){noDel();return}if(ask('dl'))return;snap('smazání záznamu kusu');S.draft=null;delete dayD(S.d).r[F.k+'-'+F.p];F=null;toast('Smazáno')}
+  else if(a==='kc'){if(!KN.name.trim()){toast('Napiš název zkoušky');return}S.tests.push({id:'zk'+(++S.tc),name:KN.name.trim(),date:KN.date||today(),note:KN.note.trim()});KN={name:'',date:today(),note:''};toast('Zkouška vytvořena')}
   else if(a==='kv'){const t=tById(v);if(t){t.done=!t.done;if(t.done&&AT===v)AT=null}}
   else if(a==='ke'){EK=EK===v?null:v}
+  else if(a==='mv'){if(!canW()||!F)return;const D2=dayD(S.d),old=D2.r[F.k+'-'+F.p],k2=Math.floor(+($('#mk')||{}).value),p2=Math.floor(+($('#mp')||{}).value);
+    if(!old){toast('Zápis ještě není uložený – přesunout jde jen uložený zápis');return}
+    if(!D2.k.some(x=>x.n===k2)){toast('Kolo '+k2+' v tomto dni není');return}
+    if(!PL(S.d).includes(p2)){toast('Číslo '+(p2||'?')+' není mezi platnými čísly forem');return}
+    if(k2===F.k&&p2===F.p){toast('Zadej jiné číslo');return}
+    if(D2.r[k2+'-'+p2]){toast('Kolo '+k2+', č. '+p2+' už má zápis – nejdřív ho smaž');return}
+    snap('přesun zápisu');delete D2.r[F.k+'-'+F.p];D2.r[k2+'-'+p2]=Object.assign({},old,{k:k2,p:p2});S.draft=null;toast('Zápis přesunut: kolo '+F.k+' č. '+F.p+' → kolo '+k2+' č. '+p2);F=null}
+  else if(a==='md'){if(!canW())return;const to=MVD.a||($('#dd1')||{}).value,from=S.d,src=S.days[from];
+    if(!to||to===from){toast('Vyber jiné datum');return}
+    if(!src||!Object.keys(src.r).length){toast('V tomto dni nejsou zápisy');return}
+    const tg=S.days[to];if(tg&&Object.keys(tg.r).length){toast('Na '+fmt(to)+' už jsou zápisy – přesuň po kolech, nebo je nejdřív smaž');return}
+    const pl=PL(to);if(Object.values(src.r).some(r=>!pl.includes(r.p))){toast('Na '+fmt(to)+' platí jiná čísla forem – zápisy by se ztratily');return}
+    if(ask('md'))return;snap('přesun dne '+from+' na '+to);S.days[to]=src;delete S.days[from];S.tests.forEach(t=>{if(t.date===from)t.date=to});S.d=to;KS=null;MVD.a='';MVD.b='';applyCfg();toast('Den přesunut na '+fmt(to))}
+  else if(a==='mq'){if(!canW())return;const k=Math.floor(+(MVD.k||($('#kk')||{}).value)),to=MVD.b||($('#dd2')||{}).value,src=S.days[S.d];
+    if(!src||!src.k.some(x=>x.n===k)){toast('Zadej číslo kola, které v tomto dni existuje');return}
+    if(!to||to===S.d){toast('Vyber jiné datum');return}
+    const keys=Object.keys(src.r).filter(x=>x.startsWith(k+'-'));if(!keys.length){toast('Kolo '+k+' nemá zápisy');return}
+    const pl=PL(to);if(keys.some(x=>!pl.includes(src.r[x].p))){toast('Na '+fmt(to)+' platí jiná čísla forem – zápisy by se ztratily');return}
+    const t=dayD(to);if(Object.keys(t.r).some(x=>x.startsWith(k+'-'))){toast('Na '+fmt(to)+' už má kolo '+k+' zápisy – nejdřív je smaž');return}
+    if(ask('mq'))return;snap('přesun kola '+k+' na '+to);keys.forEach(x=>{t.r[x]=src.r[x];delete src.r[x]});if(!t.k.some(x=>x.n===k)){t.k.push({n:k});t.k.sort((a,b)=>a.n-b.n)}src.k=src.k.filter(x=>x.n!==k);if(!src.k.length)src.k=rng(5).map(n=>({n}));KS=null;MVD.k='';MVD.b='';toast('Kolo '+k+' přesunuto na '+fmt(to))}
   else if(a==='kd'){if(!canDel()){noDel();return}if(ask('kd'+v))return;snap('smazání zkoušky '+v);S.tests=S.tests.filter(t=>t.id!==v);for(const dd of Object.keys(S.days))for(const r of Object.values(S.days[dd].r))if(r.te===v)r.te='';if(AT===v)AT=null;EK=null;toast('Zkouška smazána')}
   else if(a==='open'){pf=v;tab='p';scrollTo(0,0)}
   else if(a==='sa'){sendAll(false);return}else if(a==='sa2'){sendAll(true);return}else if(a==='bwx'){BW=false;render();return}else if(a==='bpx'){BP=null;BPC=false;render();return}else if(a==='bpm'){if(BP){const m=mergeData(JSON.stringify(BP.B));BP=null;BPC=false;persist();render();toast(m)}return}else if(a==='bpr'){if(BP){if(BP.lost&&!BPC){BPC=true;render();return}replaceData(BP.B);BP=null;BPC=false;persist();render();toast('Data v telefonu nahrazena zálohou')}return}else if(a==='undo'){if(ask('undo'))return;if(undoSnap()){persist();toast('Data vrácena do stavu před akcí')}return}else if(a==='gd'){tab='d';render();scrollTo(0,0);return}else if(a==='nb'){S.noBk=today();persist();render();return}else if(a==='xl'){out();return}else if(a==='sh'){out('sh');return}
